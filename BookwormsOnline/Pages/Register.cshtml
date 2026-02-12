@@ -34,7 +34,19 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label asp-for="Input.Password" class="form-label"></label>
-                    <input asp-for="Input.Password" class="form-control" />
+                    <input asp-for="Input.Password" class="form-control" id="passwordInput" onkeyup="checkPasswordStrength()" />
+                    <div id="password-strength-meter">
+                        <div id="password-strength-meter-fill"></div>
+                    </div>
+                    <small id="password-strength-text" class="form-text"></small>
+                    
+                    <div id="password-checklist" class="mt-2">
+                        <div id="check-length" class="checklist-item"><i class="bi bi-circle"></i> Minimum 12 characters</div>
+                        <div id="check-upper" class="checklist-item"><i class="bi bi-circle"></i> At least one uppercase letter</div>
+                        <div id="check-lower" class="checklist-item"><i class="bi bi-circle"></i> At least one lowercase letter</div>
+                        <div id="check-number" class="checklist-item"><i class="bi bi-circle"></i> At least one number</div>
+                        <div id="check-special" class="checklist-item"><i class="bi bi-circle"></i> At least one special character</div>
+                    </div>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
                 <div class="col-md-6 mb-3">

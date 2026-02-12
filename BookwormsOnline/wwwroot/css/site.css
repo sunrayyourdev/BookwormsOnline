@@ -20,3 +20,41 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Password Strength Meter */
+#password-strength-meter {
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+#password-strength-meter-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.strength-weak { background-color: #ff4d4d; }
+.strength-medium { background-color: #ffd633; }
+.strength-strong { background-color: #2eb82e; }
+.strength-very-strong { background-color: #008000; }
+
+/* Checklist styles */
+.checklist-item {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.checklist-item.valid {
+    color: #2eb82e;
+}
+
+.checklist-item.invalid {
+    color: #ff4d4d;
+}
+
+.checklist-item i {
+    margin-right: 5px;
+}
