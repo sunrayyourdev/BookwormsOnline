@@ -55,10 +55,18 @@ builder.Services.AddSession(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
+// Configure SecurityStamp validation interval for Concurrent Session Control
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    // Validate every minute to ensure previous sessions are invalidated quickly
+    options.ValidationInterval = TimeSpan.FromMilliseconds(1);
+});
+
 builder.Services.AddDataProtection();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 builder.Services.AddHttpClient<ReCaptchaService>();
 
 builder.Services.AddRazorPages();

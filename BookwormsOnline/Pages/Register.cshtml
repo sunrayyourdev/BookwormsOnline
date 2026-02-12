@@ -83,7 +83,9 @@
 
             <div class="mb-3">
                 <label asp-for="Input.Photo" class="form-label"></label>
-                <input asp-for="Input.Photo" type="file" class="form-control" accept=".jpg" />
+                <input asp-for="Input.Photo" type="file" class="form-control" accept="image/jpeg" id="photoInput" onchange="validatePhotoFile()" />
+                <small class="form-text text-muted">Maximum file size: 2MB. Only JPEG images (.jpg) are allowed.</small>
+                <div id="photoError" class="text-danger mt-2" style="display:none;"></div>
                 <span asp-validation-for="Input.Photo" class="text-danger"></span>
             </div>
 
@@ -94,4 +96,52 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Maximum file size in bytes (2MB)
+        const MAX_FILE_SIZE = 2 * 1024 * 1024;
+        const ALLOWED_MIME_TYPE = 'image/jpeg';
+
+        function validatePhotoFile() {
+            const fileInput = document.getElementById('photoInput');
+            const photoError = document.getElementById('photoError');
+            const file = fileInput.files[0];
+
+            // Clear previous error
+            photoError.style.display = 'none';
+            photoError.innerText = '';
+
+            // If no file selected, that's okay (optional field)
+            if (!file) {
+                return true;
+            }
+
+            // Check MIME type
+            if (file.type !== ALLOWED_MIME_TYPE) {
+                photoError.innerText = 'Invalid file type. Only JPEG images are allowed. Please select a .jpg or .jpeg file.';
+                photoError.style.display = 'block';
+                fileInput.value = ''; // Clear the input
+                return false;
+            }
+
+            // Check file size
+            if (file.size > MAX_FILE_SIZE) {
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                const maxSizeMB = (MAX_FILE_SIZE / (1024 * 1024)).toFixed(0);
+                photoError.innerText = `File is too large. The file size is ${fileSizeMB}MB but maximum allowed is ${maxSizeMB}MB. Please select a smaller file.`;
+                photoError.style.display = 'block';
+                fileInput.value = ''; // Clear the input
+                return false;
+            }
+
+            return true;
+        }
+
+        // Also validate on form submit
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (!validatePhotoFile() && document.getElementById('photoInput').files.length > 0) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
 }

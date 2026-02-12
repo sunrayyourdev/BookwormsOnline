@@ -88,20 +88,27 @@ public class LoginModel : PageModel
                 return Page();
             }
 
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+            if (user != null)
+            {
+                // Concurrent Session Control: Invalidate other sessions by updating the security stamp BEFORE sign-in
+                // This ensures that when the user signs in, they get a fresh cookie with the new stamp.
+                await _userManager.UpdateSecurityStampAsync(user);
+            }
+
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
             var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: false, lockoutOnFailure: true);
             
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var user = await _userManager.FindByEmailAsync(Input.Email);
 
             if (result.Succeeded)
             {
                 await _auditLogService.LogAsync(user?.Id, Input.Email, "Login Success", ipAddress);
 
-                // Enforce maximum password age (90 days) on login
                 if (user != null)
                 {
+                    // Enforce maximum password age (90 days) on login
                     var age = DateTime.UtcNow - user.LastPasswordChangedDate;
                     if (age > TimeSpan.FromDays(90))
                     {

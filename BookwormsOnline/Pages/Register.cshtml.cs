@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Web;
 
 namespace BookwormsOnline.Pages
 {
@@ -15,19 +16,22 @@ namespace BookwormsOnline.Pages
         private readonly IEncryptionService _encryptionService;
         private readonly IWebHostEnvironment _environment;
         private readonly IAuditLogService _auditLogService;
+        private readonly IPhotoUploadService _photoUploadService;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEncryptionService encryptionService,
             IWebHostEnvironment environment,
-            IAuditLogService auditLogService)
+            IAuditLogService auditLogService,
+            IPhotoUploadService photoUploadService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _encryptionService = encryptionService;
             _environment = environment;
             _auditLogService = auditLogService;
+            _photoUploadService = photoUploadService;
         }
 
         [BindProperty]
@@ -35,14 +39,20 @@ namespace BookwormsOnline.Pages
 
         public string? ReturnUrl { get; set; }
 
+        // Properties for HTML-encoded address display
+        public string EncodedBillingAddress { get; set; } = string.Empty;
+        public string EncodedShippingAddress { get; set; } = string.Empty;
+
         public class InputModel
         {
             [Required]
             [Display(Name = "First Name")]
+            [RegularExpression(@"^[a-zA-Z\s'-]+$", ErrorMessage = "First Name can only contain letters, spaces, hyphens, and apostrophes.")]
             public string FirstName { get; set; } = string.Empty;
 
             [Required]
             [Display(Name = "Last Name")]
+            [RegularExpression(@"^[a-zA-Z\s'-]+$", ErrorMessage = "Last Name can only contain letters, spaces, hyphens, and apostrophes.")]
             public string LastName { get; set; } = string.Empty;
 
             [Required]
@@ -58,10 +68,13 @@ namespace BookwormsOnline.Pages
 
             [Required]
             [Display(Name = "Billing Address")]
+            [StandardAddress]
+            [StringLength(500, ErrorMessage = "Billing Address cannot exceed 500 characters.")]
             public string BillingAddress { get; set; } = string.Empty;
 
             [Required]
             [Display(Name = "Shipping Address")]
+            [StringLength(500, ErrorMessage = "Shipping Address cannot exceed 500 characters.")]
             public string ShippingAddress { get; set; } = string.Empty;
 
             [Required]
@@ -95,20 +108,20 @@ namespace BookwormsOnline.Pages
             returnUrl ??= Url.Content("~/");
             if (ModelState.IsValid)
             {
+                // Validate and save photo using PhotoUploadService
+                string? photoPath = null;
                 if (Input.Photo != null)
                 {
-                    var extension = Path.GetExtension(Input.Photo.FileName).ToLower();
-                    if (extension != ".jpg")
+                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                    var uploadResult = await _photoUploadService.ValidateAndSavePhotoAsync(Input.Photo, uploadsFolder);
+                    
+                    if (!uploadResult.IsSuccess)
                     {
-                        ModelState.AddModelError("Input.Photo", "Only .JPG files are allowed.");
+                        ModelState.AddModelError("Input.Photo", uploadResult.Message);
                         return Page();
                     }
-
-                    if (Input.Photo.ContentType.ToLower() != "image/jpeg")
-                    {
-                        ModelState.AddModelError("Input.Photo", "Invalid file type. Only JPG images are allowed.");
-                        return Page();
-                    }
+                    
+                    photoPath = uploadResult.FilePath;
                 }
 
                 var user = new ApplicationUser
@@ -119,26 +132,13 @@ namespace BookwormsOnline.Pages
                     LastName = Input.LastName,
                     CreditCardNumber = _encryptionService.Encrypt(Input.CreditCardNumber),
                     Mobile = Input.Mobile,
-                    BillingAddress = Input.BillingAddress,
-                    ShippingAddress = Input.ShippingAddress,
+                    // HTML encode addresses to prevent XSS attacks
+                    BillingAddress = HttpUtility.HtmlEncode(Input.BillingAddress),
+                    ShippingAddress = HttpUtility.HtmlEncode(Input.ShippingAddress),
+                    PhotoPath = photoPath ?? string.Empty,
                     LastPasswordChangedDate = DateTime.UtcNow
                 };
 
-                if (Input.Photo != null)
-                {
-                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Input.Photo.FileName;
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await Input.Photo.CopyToAsync(fileStream);
-                    }
-                    user.PhotoPath = "/uploads/" + uniqueFileName;
-                }
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -152,7 +152,32 @@ namespace BookwormsOnline.Pages
                 await _auditLogService.LogAsync(null, Input.Email, "Registration Failed", ipAddress);
                 foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    // Customize error messages for better user experience
+                    string customErrorMessage = error.Description;
+                    
+                    // Replace generic "Username" error with email-specific message
+                    if (error.Code == "DuplicateUserName" || error.Description.Contains("already taken"))
+                    {
+                        customErrorMessage = $"The email address '{Input.Email}' is already registered. Please use a different email or try logging in.";
+                    }
+                    else if (error.Code == "DuplicateEmail")
+                    {
+                        customErrorMessage = $"The email address '{Input.Email}' is already registered. Please use a different email or try logging in.";
+                    }
+                    else if (error.Code == "InvalidEmail")
+                    {
+                        customErrorMessage = "The email address provided is invalid.";
+                    }
+                    else if (error.Code == "PasswordTooShort")
+                    {
+                        customErrorMessage = "Password must be at least 12 characters long.";
+                    }
+                    else if (error.Code == "PasswordRequiresNonAlphanumeric")
+                    {
+                        customErrorMessage = "Password must contain at least one special character.";
+                    }
+                    
+                    ModelState.AddModelError(string.Empty, customErrorMessage);
                 }
             }
 
