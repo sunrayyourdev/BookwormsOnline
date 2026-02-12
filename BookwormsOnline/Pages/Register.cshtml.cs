@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BookwormsOnline.Pages
 {
+    [ValidateAntiForgeryToken]
     public class RegisterModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BookwormsOnline.Pages;
 
+[ValidateAntiForgeryToken]
 public class LogoutModel : PageModel
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
