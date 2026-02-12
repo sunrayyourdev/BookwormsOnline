@@ -111,12 +111,16 @@ public class ChangePasswordModel : PageModel
             }
         }
 
-        // Enforce minimum password age (2 minutes)
+        // Enforce minimum password age (1 day)
         var now = DateTime.UtcNow;
         var timeSinceLastChange = now - user.LastPasswordChangedDate;
-        if (timeSinceLastChange < TimeSpan.FromMinutes(2))
+        if (timeSinceLastChange < TimeSpan.FromDays(1))
         {
-            ModelState.AddModelError(string.Empty, $"You changed your password too recently. Please wait {(TimeSpan.FromMinutes(2) - timeSinceLastChange).Minutes + 1} minutes before trying again.");
+            var remaining = TimeSpan.FromDays(1) - timeSinceLastChange;
+            var message = remaining.TotalHours >= 1 
+                ? $"{(int)remaining.TotalHours} hours" 
+                : $"{(int)remaining.TotalMinutes} minutes";
+            ModelState.AddModelError(string.Empty, $"You changed your password too recently. Please wait {message} before trying again.");
             return Page();
         }
 

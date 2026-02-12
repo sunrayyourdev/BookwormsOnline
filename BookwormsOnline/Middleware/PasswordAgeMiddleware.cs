@@ -39,7 +39,7 @@ namespace BookwormsOnline.Middleware
                     if (user != null)
                     {
                         var age = DateTime.UtcNow - user.LastPasswordChangedDate;
-                        if (age > TimeSpan.FromMinutes(10))
+                        if (age > TimeSpan.FromDays(90))
                         {
                             context.Response.Redirect("/ChangePassword?expired=1");
                             return; // Short-circuit pipeline
