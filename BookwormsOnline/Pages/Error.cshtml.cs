@@ -12,6 +12,9 @@ namespace BookwormsOnline.Pages
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
+        public int? StatusCode { get; set; }
+        public string ErrorMessage { get; set; }
+
         private readonly ILogger<ErrorModel> _logger;
 
         public ErrorModel(ILogger<ErrorModel> logger)
@@ -19,9 +22,23 @@ namespace BookwormsOnline.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public void OnGet(int? statusCode = null)
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            StatusCode = statusCode;
+
+            if (statusCode == 404)
+            {
+                ErrorMessage = "Oops! The page you are looking for could not be found.";
+            }
+            else if (statusCode == 403)
+            {
+                ErrorMessage = "Sorry, you don't have permission to access this resource.";
+            }
+            else
+            {
+                ErrorMessage = "An error occurred while processing your request.";
+            }
         }
     }
 

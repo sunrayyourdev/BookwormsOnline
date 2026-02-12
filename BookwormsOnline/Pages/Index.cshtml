@@ -4,7 +4,56 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>User Profile</h3>
+                </div>
+                <div class="card-body">
+                    @if (Model.AppUser != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">First Name:</div>
+                            <div class="col-sm-8">@Model.AppUser.FirstName</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">Last Name:</div>
+                            <div class="col-sm-8">@Model.AppUser.LastName</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">Email:</div>
+                            <div class="col-sm-8">@Model.AppUser.Email</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">Mobile:</div>
+                            <div class="col-sm-8">@Model.AppUser.Mobile</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">Billing Address:</div>
+                            <div class="col-sm-8">@Model.AppUser.BillingAddress</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">Shipping Address:</div>
+                            <div class="col-sm-8">@Model.AppUser.ShippingAddress</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-4 font-weight-bold">Credit Card Number:</div>
+                            <div class="col-sm-8">@Model.DecryptedCreditCard</div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.AppUser.PhotoPath))
+                        {
+                            <div class="row mb-3">
+                                <div class="col-sm-4 font-weight-bold">Profile Picture:</div>
+                                <div class="col-sm-8">
+                                    <img src="@Model.AppUser.PhotoPath" alt="Profile Picture" class="img-thumbnail" style="max-width: 200px;" />
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

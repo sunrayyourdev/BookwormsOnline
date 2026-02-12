@@ -1,0 +1,85 @@
+﻿@page
+@model BookwormsOnline.Pages.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" enctype="multipart/form-data">
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.FirstName" class="form-label"></label>
+                    <input asp-for="Input.FirstName" class="form-control" />
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.LastName" class="form-label"></label>
+                    <input asp-for="Input.LastName" class="form-control" />
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <input asp-for="Input.Password" class="form-control" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Mobile" class="form-label"></label>
+                    <input asp-for="Input.Mobile" class="form-control" />
+                    <span asp-validation-for="Input.Mobile" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.CreditCardNumber" class="form-label"></label>
+                    <input asp-for="Input.CreditCardNumber" class="form-control" />
+                    <span asp-validation-for="Input.CreditCardNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.BillingAddress" class="form-label"></label>
+                <textarea asp-for="Input.BillingAddress" class="form-control"></textarea>
+                <span asp-validation-for="Input.BillingAddress" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.ShippingAddress" class="form-label"></label>
+                <textarea asp-for="Input.ShippingAddress" class="form-control"></textarea>
+                <span asp-validation-for="Input.ShippingAddress" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Photo" class="form-label"></label>
+                <input asp-for="Input.Photo" type="file" class="form-control" accept=".jpg" />
+                <span asp-validation-for="Input.Photo" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

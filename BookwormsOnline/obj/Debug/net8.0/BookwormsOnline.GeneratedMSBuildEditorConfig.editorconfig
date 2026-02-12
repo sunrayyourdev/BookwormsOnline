@@ -28,8 +28,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/xxrob/Desktop/NYP/DIT/Y3S2/AS/Practical Assignment/BookwormsOnline/BookwormsOnline/Pages/Lockout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9ja291dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/xxrob/Desktop/NYP/DIT/Y3S2/AS/Practical Assignment/BookwormsOnline/BookwormsOnline/Pages/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/xxrob/Desktop/NYP/DIT/Y3S2/AS/Practical Assignment/BookwormsOnline/BookwormsOnline/Pages/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9nb3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/xxrob/Desktop/NYP/DIT/Y3S2/AS/Practical Assignment/BookwormsOnline/BookwormsOnline/Pages/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/xxrob/Desktop/NYP/DIT/Y3S2/AS/Practical Assignment/BookwormsOnline/BookwormsOnline/Pages/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/xxrob/Desktop/NYP/DIT/Y3S2/AS/Practical Assignment/BookwormsOnline/BookwormsOnline/Pages/Shared/_ValidationScriptsPartial.cshtml]

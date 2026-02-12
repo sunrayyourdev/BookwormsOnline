@@ -1,6 +1,56 @@
+using BookwormsOnline.Data;
+using BookwormsOnline.Models;
+using BookwormsOnline.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Password.RequiredLength = 12;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        
+        // Account Lockout Policy
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.MaxFailedAccessAttempts = 3;
+        options.Lockout.AllowedForNewUsers = true;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    options.SlidingExpiration = true;
+    options.LoginPath = "/Login";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddHttpClient<ReCaptchaService>();
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -12,12 +62,24 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    // In development, still use the custom error page for testing if desired, 
+    // or keep developer exception page. 
+    // For this task, I'll enable StatusCodePages in both to ensure it works.
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
