@@ -4,6 +4,14 @@ using BookwormsOnline.Services;
 using BookwormsOnline.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
+
+// Load environment variables from .env file
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +57,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddDataProtection();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddHttpClient<ReCaptchaService>();
 

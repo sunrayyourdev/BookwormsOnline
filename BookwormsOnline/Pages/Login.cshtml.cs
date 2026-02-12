@@ -14,17 +14,20 @@ public class LoginModel : PageModel
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IAuditLogService _auditLogService;
     private readonly ReCaptchaService _reCaptchaService;
+    private readonly ILogger<LoginModel> _logger;
 
     public LoginModel(
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         IAuditLogService auditLogService,
-        ReCaptchaService reCaptchaService)
+        ReCaptchaService reCaptchaService,
+        ILogger<LoginModel> logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _auditLogService = auditLogService;
         _reCaptchaService = reCaptchaService;
+        _logger = logger;
     }
 
     [BindProperty]
@@ -34,6 +37,8 @@ public class LoginModel : PageModel
 
     [TempData]
     public string ErrorMessage { get; set; } = string.Empty;
+
+    public string? ReCaptchaSiteKey { get; set; }
 
     public class InputModel
     {
@@ -61,6 +66,13 @@ public class LoginModel : PageModel
         await _signInManager.SignOutAsync();
 
         ReturnUrl = returnUrl;
+        ReCaptchaSiteKey = Environment.GetEnvironmentVariable("RECAPTCHA_SITEKEY");
+        
+        // Log for debugging
+        if (string.IsNullOrEmpty(ReCaptchaSiteKey))
+        {
+            _logger.LogWarning("RECAPTCHA_SITEKEY environment variable not found!");
+        }
     }
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)

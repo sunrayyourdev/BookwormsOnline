@@ -15,7 +15,7 @@ public class ReCaptchaService
 
     public async Task<bool> VerifyAsync(string token)
     {
-        var secretKey = _configuration["ReCaptcha:SecretKey"];
+        var secretKey = Environment.GetEnvironmentVariable("RECAPTCHA_SECRETKEY");
         var response = await _httpClient.PostAsync(
             $"https://www.google.com/recaptcha/api/siteverify?secret={secretKey}&response={token}",
             null);

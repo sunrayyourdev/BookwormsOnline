@@ -38,6 +38,9 @@
 
 # Local Config files
 appsettings.Development.json
+.env
+.env.local
+.env*.local
 
 # User Uploads
 BookwormsOnline/wwwroot/uploads/*
