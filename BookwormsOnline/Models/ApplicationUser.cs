@@ -31,4 +31,7 @@ public class ApplicationUser : IdentityUser
 
     [Required]
     public string PhotoPath { get; set; } = string.Empty;
+
+    [Required]
+    public DateTime LastPasswordChangedDate { get; set; }
 }

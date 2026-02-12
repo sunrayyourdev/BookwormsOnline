@@ -86,6 +86,17 @@ public class LoginModel : PageModel
             if (result.Succeeded)
             {
                 await _auditLogService.LogAsync(user?.Id, Input.Email, "Login Success", ipAddress);
+
+                // Enforce maximum password age (10 minutes) on login
+                if (user != null)
+                {
+                    var age = DateTime.UtcNow - user.LastPasswordChangedDate;
+                    if (age > TimeSpan.FromMinutes(10))
+                    {
+                        return RedirectToPage("./ChangePassword", new { expired = 1 });
+                    }
+                }
+
                 return LocalRedirect(returnUrl);
             }
             if (result.RequiresTwoFactor)

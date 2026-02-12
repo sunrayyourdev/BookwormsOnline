@@ -64,6 +64,12 @@ public class ChangePasswordModel : PageModel
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
 
+        // If redirected due to expiry, show a message
+        if (Request.Query.ContainsKey("expired"))
+        {
+            StatusMessage = "Your password has expired. Please set a new password.";
+        }
+
         return Page();
     }
 
@@ -105,6 +111,15 @@ public class ChangePasswordModel : PageModel
             }
         }
 
+        // Enforce minimum password age (2 minutes)
+        var now = DateTime.UtcNow;
+        var timeSinceLastChange = now - user.LastPasswordChangedDate;
+        if (timeSinceLastChange < TimeSpan.FromMinutes(2))
+        {
+            ModelState.AddModelError(string.Empty, $"You changed your password too recently. Please wait {(TimeSpan.FromMinutes(2) - timeSinceLastChange).Minutes + 1} minutes before trying again.");
+            return Page();
+        }
+
         var oldHash = user.PasswordHash;
         var changePasswordResult = await _userManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
         if (!changePasswordResult.Succeeded)
@@ -115,6 +130,10 @@ public class ChangePasswordModel : PageModel
             }
             return Page();
         }
+
+        // Update last password change timestamp
+        user.LastPasswordChangedDate = now;
+        await _userManager.UpdateAsync(user);
 
         // Save old password to history
         if (oldHash != null)

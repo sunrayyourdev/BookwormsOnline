@@ -120,7 +120,8 @@ namespace BookwormsOnline.Pages
                     CreditCardNumber = _encryptionService.Encrypt(Input.CreditCardNumber),
                     Mobile = Input.Mobile,
                     BillingAddress = Input.BillingAddress,
-                    ShippingAddress = Input.ShippingAddress
+                    ShippingAddress = Input.ShippingAddress,
+                    LastPasswordChangedDate = DateTime.UtcNow
                 };
 
                 if (Input.Photo != null)

@@ -1,0 +1,49 @@
+﻿## [Standard .NET Ignore Patterns]
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains (Rider)
+.idea/
+*.sln.iml
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet Packages
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Local Config files
+appsettings.Development.json
+
+# User Uploads
+BookwormsOnline/wwwroot/uploads/*
+!BookwormsOnline/wwwroot/uploads/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

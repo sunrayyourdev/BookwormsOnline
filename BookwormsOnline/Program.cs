@@ -1,6 +1,7 @@
 using BookwormsOnline.Data;
 using BookwormsOnline.Models;
 using BookwormsOnline.Services;
+using BookwormsOnline.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,6 +56,13 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+// Apply any pending EF Core migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -80,6 +88,10 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthentication();
+
+// Enforce password expiry globally (max age: 10 minutes)
+app.UseMiddleware<PasswordAgeMiddleware>();
+
 app.UseAuthorization();
 
 app.MapRazorPages();
