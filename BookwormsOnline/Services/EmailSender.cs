@@ -16,6 +16,36 @@ public class EmailSender : IPasswordResetEmailSender
         _configuration = configuration;
     }
 
+    /// <summary>
+    /// Redacts an email address for safe logging by masking the local part.
+    /// Example: user@example.com becomes u***@example.com
+    /// </summary>
+    /// <param name="email">The email address to redact</param>
+    /// <returns>The redacted email address, or a placeholder if input is null/empty</returns>
+    private string RedactEmail(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            return "[unknown]";
+        }
+
+        var parts = email.Split('@');
+        if (parts.Length != 2)
+        {
+            return "[invalid-email]";
+        }
+
+        var localPart = parts[0];
+        var domain = parts[1];
+
+        // Keep the first character and mask the rest with asterisks
+        var redactedLocal = localPart.Length > 0 
+            ? localPart[0] + new string('*', Math.Max(0, localPart.Length - 1))
+            : "***";
+
+        return $"{redactedLocal}@{domain}";
+    }
+
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
         try
@@ -49,12 +79,12 @@ public class EmailSender : IPasswordResetEmailSender
                 mailMessage.To.Add(email);
 
                 await client.SendMailAsync(mailMessage);
-                _logger.LogInformation("Email successfully sent to {Email} with subject {Subject}", email, subject);
+                _logger.LogInformation("Email successfully sent to {Email} with subject {Subject}", RedactEmail(email), subject);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {Email} with subject {Subject}", email, subject);
+            _logger.LogError(ex, "Failed to send email to {Email} with subject {Subject}", RedactEmail(email), subject);
             throw;
         }
     }
@@ -77,11 +107,11 @@ public class EmailSender : IPasswordResetEmailSender
             
             await SendEmailAsync(email, "Reset Password", htmlMessage);
             
-            _logger.LogInformation("Password reset email sent to {Email}", email);
+            _logger.LogInformation("Password reset email sent to {Email}", RedactEmail(email));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send password reset email to {Email}", email);
+            _logger.LogError(ex, "Failed to send password reset email to {Email}", RedactEmail(email));
             throw;
         }
     }
