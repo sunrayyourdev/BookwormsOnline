@@ -3,6 +3,7 @@ using BookwormsOnline.Models;
 using BookwormsOnline.Services;
 using BookwormsOnline.Middleware;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 
@@ -68,6 +69,18 @@ builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 builder.Services.AddHttpClient<ReCaptchaService>();
+
+// Configure file upload size limits (2MB) to prevent 413 Payload Too Large errors
+// This enforces the limit at the web server level (Kestrel) before reaching application code
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 2 * 1024 * 1024; // 2MB for form file uploads
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 2 * 1024 * 1024; // 2MB for all request bodies
+});
 
 builder.Services.AddRazorPages();
 
