@@ -1,7 +1,9 @@
-﻿﻿using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net;
 using System.Net.Mail;
 using System.Text.Encodings.Web;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace BookwormsOnline.Services;
 
@@ -17,33 +19,42 @@ public class EmailSender : IPasswordResetEmailSender
     }
 
     /// <summary>
-    /// Redacts an email address for safe logging by masking the local part.
-    /// Example: user@example.com becomes u***@example.com
+    /// Redacts an email address for safe logging by producing a non-reversible token.
+    /// Example: user@example.com becomes email:[ABC12345]
     /// </summary>
     /// <param name="email">The email address to redact</param>
-    /// <returns>The redacted email address, or a placeholder if input is null/empty</returns>
+    /// <returns>
+    /// A non-reversible representation of the email address suitable for logs,
+    /// or a placeholder if input is null/empty/invalid.
+    /// </returns>
     private string RedactEmail(string email)
     {
         if (string.IsNullOrEmpty(email))
         {
-            return "[unknown]";
+            return "email:[unknown]";
         }
 
-        var parts = email.Split('@');
-        if (parts.Length != 2)
+        try
         {
-            return "[invalid-email]";
+            // Use a one-way hash so the original email cannot be reconstructed
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(email);
+                var hashBytes = sha256.ComputeHash(bytes);
+                var hashString = Convert.ToBase64String(hashBytes);
+
+                // Use only a prefix to keep log messages compact while still allowing correlation
+                var prefixLength = Math.Min(12, hashString.Length);
+                var hashPrefix = hashString.Substring(0, prefixLength);
+
+                return $"email:[{hashPrefix}]";
+            }
         }
-
-        var localPart = parts[0];
-        var domain = parts[1];
-
-        // Keep the first character and mask the rest with asterisks
-        var redactedLocal = localPart.Length > 0 
-            ? localPart[0] + new string('*', Math.Max(0, localPart.Length - 1))
-            : "***";
-
-        return $"{redactedLocal}@{domain}";
+        catch
+        {
+            // In the unlikely event hashing fails, avoid leaking the raw email
+            return "email:[redacted]";
+        }
     }
 
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
@@ -59,7 +70,8 @@ public class EmailSender : IPasswordResetEmailSender
 
             if (string.IsNullOrEmpty(smtpUsername) || string.IsNullOrEmpty(smtpPassword))
             {
-                _logger.LogError("Email credentials not configured. Please set MAIL_USERNAME and MAIL_PASSWORD environment variables.");
+                _logger.LogError(
+                    "Email credentials not configured. Please set MAIL_USERNAME and MAIL_PASSWORD environment variables.");
                 throw new InvalidOperationException("Email service is not configured with required credentials.");
             }
 
@@ -79,7 +91,8 @@ public class EmailSender : IPasswordResetEmailSender
                 mailMessage.To.Add(email);
 
                 await client.SendMailAsync(mailMessage);
-                _logger.LogInformation("Email successfully sent to {Email} with subject {Subject}", RedactEmail(email), subject);
+                _logger.LogInformation("Email successfully sent to {Email} with subject {Subject}", RedactEmail(email),
+                    subject);
             }
         }
         catch (Exception ex)
@@ -104,9 +117,9 @@ public class EmailSender : IPasswordResetEmailSender
             // This ensures the URL is safely encoded within the email HTML context
             var encodedUrl = HtmlEncoder.Default.Encode(callbackUrl);
             var htmlMessage = $"Please reset your password by <a href='{encodedUrl}'>clicking here</a>.";
-            
+
             await SendEmailAsync(email, "Reset Password", htmlMessage);
-            
+
             _logger.LogInformation("Password reset email sent to {Email}", RedactEmail(email));
         }
         catch (Exception ex)
