@@ -46,6 +46,10 @@ appsettings.Development.json
 BookwormsOnline/wwwroot/uploads/*
 !BookwormsOnline/wwwroot/uploads/.gitkeep
 
+# Client-side Libraries (third-party dependencies)
+# These should be restored via LibMan, npm, or CDN
+BookwormsOnline/wwwroot/lib/
+
 # OS files
 .DS_Store
 Thumbs.db
