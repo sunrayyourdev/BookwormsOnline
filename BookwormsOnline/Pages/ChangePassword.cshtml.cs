@@ -61,7 +61,8 @@ public class ChangePasswordModel : PageModel
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            // Do not expose user ID in error message - security risk
+            return NotFound("Unable to load user information.");
         }
 
         // If redirected due to expiry, show a message
@@ -130,7 +131,20 @@ public class ChangePasswordModel : PageModel
         {
             foreach (var error in changePasswordResult.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                // Sanitize error messages to prevent sensitive data exposure
+                // Use user-friendly generic messages instead of exposing Identity framework details
+                string sanitizedMessage = error.Code switch
+                {
+                    "PasswordMismatch" => "The current password is incorrect.",
+                    "PasswordTooShort" => "Password must be at least 12 characters long.",
+                    "PasswordRequiresNonAlphanumeric" => "Password must contain at least one special character.",
+                    "PasswordRequiresDigit" => "Password must contain at least one digit.",
+                    "PasswordRequiresLower" => "Password must contain at least one lowercase letter.",
+                    "PasswordRequiresUpper" => "Password must contain at least one uppercase letter.",
+                    _ => "Password change failed. Please ensure your password meets all requirements."
+                };
+                
+                ModelState.AddModelError(string.Empty, sanitizedMessage);
             }
             return Page();
         }

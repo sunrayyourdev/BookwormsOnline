@@ -152,7 +152,21 @@ public class ResetPasswordModel : PageModel
 
         foreach (var error in resultReset.Errors)
         {
-            ModelState.AddModelError(string.Empty, error.Description);
+            // Sanitize error messages to prevent sensitive data exposure
+            // Use user-friendly generic messages instead of exposing Identity framework details
+            string sanitizedMessage = error.Code switch
+            {
+                "InvalidToken" => "The password reset link has expired or is invalid. Please request a new password reset.",
+                "PasswordMismatch" => "Password reset failed. Please try again.",
+                "PasswordTooShort" => "Password must be at least 12 characters long.",
+                "PasswordRequiresNonAlphanumeric" => "Password must contain at least one special character.",
+                "PasswordRequiresDigit" => "Password must contain at least one digit.",
+                "PasswordRequiresLower" => "Password must contain at least one lowercase letter.",
+                "PasswordRequiresUpper" => "Password must contain at least one uppercase letter.",
+                _ => "Password reset failed. Please ensure your password meets all requirements."
+            };
+            
+            ModelState.AddModelError(string.Empty, sanitizedMessage);
         }
         return Page();
     }
