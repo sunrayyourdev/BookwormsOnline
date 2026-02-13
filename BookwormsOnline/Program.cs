@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 
-// Load environment variables from .env file
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
 if (File.Exists(envPath))
 {
@@ -16,7 +15,6 @@ if (File.Exists(envPath))
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -30,7 +28,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         options.Password.RequireUppercase = true;
         options.Password.RequireNonAlphanumeric = true;
         
-        // Account Lockout Policy
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         options.Lockout.MaxFailedAccessAttempts = 3;
         options.Lockout.AllowedForNewUsers = true;
@@ -59,7 +56,6 @@ builder.Services.AddSession(options =>
 // Configure SecurityStamp validation interval for Concurrent Session Control
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    // Validate every minute to ensure previous sessions are invalidated quickly
     options.ValidationInterval = TimeSpan.FromMilliseconds(1);
 });
 
@@ -86,14 +82,12 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Apply any pending EF Core migrations on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -102,9 +96,6 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
-    // In development, still use the custom error page for testing if desired, 
-    // or keep developer exception page. 
-    // For this task, I'll enable StatusCodePages in both to ensure it works.
     app.UseDeveloperExceptionPage();
 }
 
@@ -119,7 +110,6 @@ app.UseSession();
 
 app.UseAuthentication();
 
-// Enforce password expiry globally (max age: 10 minutes)
 app.UseMiddleware<PasswordAgeMiddleware>();
 
 app.UseAuthorization();
