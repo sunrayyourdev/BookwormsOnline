@@ -55,10 +55,11 @@ public class ForgotPasswordModel : PageModel
             // an encoded transport string, not raw sensitive data
             var safeCode = HtmlEncoder.Default.Encode(codeEncoded);
             
-            // Remove email from URL to prevent PII exposure in reset link
-            // User will need to enter their email address on the reset page
+            // Send link to VerifyResetCode page instead of directly to ResetPassword
+            // This intermediate page will POST the code to ResetPassword, keeping the code
+            // out of server access logs (POST data is not logged, unlike URL parameters)
             var callbackUrl = Url.Page(
-                "/ResetPassword",
+                "/VerifyResetCode",
                 pageHandler: null,
                 values: new { code = safeCode },
                 protocol: Request.Scheme);
