@@ -1,13 +1,12 @@
 ﻿using BookwormsOnline.Models;
+using BookwormsOnline.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 
 namespace BookwormsOnline.Pages;
 
@@ -15,9 +14,9 @@ namespace BookwormsOnline.Pages;
 public class ForgotPasswordModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IEmailSender _emailSender;
+    private readonly IPasswordResetEmailSender _emailSender;
 
-    public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+    public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IPasswordResetEmailSender emailSender)
     {
         _userManager = userManager;
         _emailSender = emailSender;
@@ -56,10 +55,9 @@ public class ForgotPasswordModel : PageModel
                 values: new { code = codeEncoded, email = user.Email },
                 protocol: Request.Scheme);
 
-            await _emailSender.SendEmailAsync(
-                Input.Email,
-                "Reset Password",
-                $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>clicking here</a>.");
+            // Pass the callback URL to the email service
+            // The service handles HTML body construction and encoding to prevent taint-path issues
+            await _emailSender.SendResetLinkAsync(Input.Email, callbackUrl!);
 
             return RedirectToPage("./ForgotPasswordConfirmation");
         }
@@ -67,3 +65,5 @@ public class ForgotPasswordModel : PageModel
         return Page();
     }
 }
+
+
