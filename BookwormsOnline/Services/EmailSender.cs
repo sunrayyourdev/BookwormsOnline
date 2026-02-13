@@ -18,53 +18,6 @@ public class EmailSender : IPasswordResetEmailSender
         _configuration = configuration;
     }
 
-    /// <summary>
-    /// Generates a non-identifying, non-reversible token for an email address suitable for logging.
-    /// The token is a salted hash that cannot be used to identify or reconstruct the original email.
-    /// Example: user@example.com becomes email:[ABC12345]
-    /// </summary>
-    /// <param name="email">The email address to convert to a logging token</param>
-    /// <returns>
-    /// A non-reversible, non-identifying token suitable for logs that allows correlation
-    /// of log entries without exposing private data. Returns a placeholder if input is null/empty/invalid.
-    /// </returns>
-    private string RedactEmail(string email)
-    {
-        if (string.IsNullOrEmpty(email))
-        {
-            return "email:[unknown]";
-        }
-
-        try
-        {
-            // Use a salted one-way hash so the original email cannot be reconstructed
-            // The salt ensures that even if someone has a dictionary of email hashes,
-            // they cannot reverse-engineer the original email from the log
-            const string SALT = "BookwormsOnline-Email-Log-Salt-2026"; // Application-wide constant salt
-            
-            using (var sha256 = SHA256.Create())
-            {
-                // Combine email with salt to create a non-reversible token
-                var saltedEmail = email + SALT;
-                var bytes = Encoding.UTF8.GetBytes(saltedEmail);
-                var hashBytes = sha256.ComputeHash(bytes);
-                var hashString = Convert.ToBase64String(hashBytes);
-
-                // Use only a truncated prefix to keep log messages compact
-                // This provides correlation capability while being completely non-identifying
-                var prefixLength = Math.Min(12, hashString.Length);
-                var hashPrefix = hashString.Substring(0, prefixLength);
-
-                return $"email:[{hashPrefix}]";
-            }
-        }
-        catch
-        {
-            // In the unlikely event hashing fails, avoid leaking the raw email
-            return "email:[redacted]";
-        }
-    }
-
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
         try
@@ -99,13 +52,13 @@ public class EmailSender : IPasswordResetEmailSender
                 mailMessage.To.Add(email);
 
                 await client.SendMailAsync(mailMessage);
-                _logger.LogInformation("Email successfully sent to {Email} with subject {Subject}", RedactEmail(email),
+                _logger.LogInformation("Email successfully sent with subject {Subject}",
                     subject);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {Email} with subject {Subject}", RedactEmail(email), subject);
+            _logger.LogError(ex, "Failed to send email with subject {Subject}", subject);
             throw;
         }
     }
