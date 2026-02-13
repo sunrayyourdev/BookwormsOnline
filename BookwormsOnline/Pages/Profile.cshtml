@@ -1,0 +1,103 @@
+﻿@page
+@model BookwormsOnline.Pages.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                @if (!string.IsNullOrEmpty(Model.AppUser?.PhotoPath))
+                {
+                    <img src="@Model.AppUser.PhotoPath" alt="Profile Photo" class="img-fluid rounded-circle mb-3" style="max-width: 140px;" />
+                }
+                else
+                {
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 140px; height: 140px;">
+                        <i class="bi bi-person fs-1"></i>
+                    </div>
+                }
+                <h4 class="fw-bold mb-1">@Model.AppUser?.FirstName @Model.AppUser?.LastName</h4>
+                <p class="text-muted mb-3">@Model.AppUser?.Email</p>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-outline-primary" asp-page="/ChangePassword">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                    <a class="btn btn-outline-secondary" asp-page="/TwoFactorAuthentication">
+                        <i class="bi bi-shield-lock"></i> Manage 2FA
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3"><i class="bi bi-shield-check"></i> Security Status</h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Encrypted payments</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Account lockout protection</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Two-factor available</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Personal Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">First Name</div>
+                    <div class="col-sm-8 fw-semibold">@Model.AppUser?.FirstName</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Last Name</div>
+                    <div class="col-sm-8 fw-semibold">@Model.AppUser?.LastName</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Email</div>
+                    <div class="col-sm-8 fw-semibold">@Model.AppUser?.Email</div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-sm-4 text-muted">Mobile</div>
+                    <div class="col-sm-8 fw-semibold">@Model.AppUser?.Mobile</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Addresses</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Billing Address</div>
+                    <div class="col-sm-8 fw-semibold">@Model.DecodedBillingAddress</div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-sm-4 text-muted">Shipping Address</div>
+                    <div class="col-sm-8 fw-semibold">@Model.DecodedShippingAddress</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-credit-card"></i> Payment & Security</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Saved Card</div>
+                    <div class="col-sm-8 fw-semibold">@Model.MaskedCreditCard</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 text-muted">Last Password Update</div>
+                    <div class="col-sm-8 fw-semibold">@Model.AppUser?.LastPasswordChangedDate.ToString("yyyy-MM-dd HH:mm")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

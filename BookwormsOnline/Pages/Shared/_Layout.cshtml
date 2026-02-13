@@ -21,7 +21,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Index">
                                 <i class="bi bi-house-door"></i> Home
@@ -32,18 +32,32 @@
                                 <i class="bi bi-shield-check"></i> Privacy
                             </a>
                         </li>
-                        
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto align-items-lg-center">
+                        <li class="nav-item me-lg-2">
+                            <a class="nav-link position-relative" href="#" aria-label="Cart">
+                                <i class="bi bi-cart3"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+
                         @using Microsoft.AspNetCore.Identity
                         @using BookwormsOnline.Models
                         @inject SignInManager<ApplicationUser> SignInManager
 
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle"></i> Account
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i> Account
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                                @if (SignInManager.IsSignedIn(User))
+                                {
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Profile">
+                                        <i class="bi bi-person"></i> Profile
+                                    </a></li>
                                     <li><a class="dropdown-item" asp-area="" asp-page="/ChangePassword">
                                         <i class="bi bi-key"></i> Change Password
                                     </a></li>
@@ -58,22 +72,18 @@
                                             </button>
                                         </form>
                                     </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Register">
-                                    <i class="bi bi-person-plus"></i> Register
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-primary text-white btn-sm ms-2" asp-area="" asp-page="/Login">
-                                    <i class="bi bi-box-arrow-in-right"></i> Login
-                                </a>
-                            </li>
-                        }
+                                }
+                                else
+                                {
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Login">
+                                        <i class="bi bi-box-arrow-in-right"></i> Login
+                                    </a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Register">
+                                        <i class="bi bi-person-plus"></i> Register
+                                    </a></li>
+                                }
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
