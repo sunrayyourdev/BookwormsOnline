@@ -1,4 +1,4 @@
-﻿using BookwormsOnline.Data;
+﻿﻿using BookwormsOnline.Data;
 using BookwormsOnline.Models;
 using BookwormsOnline.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +53,7 @@ public class ResetPasswordModel : PageModel
         public string Code { get; set; } = string.Empty;
     }
 
-    public IActionResult OnGet(string? code = null, string? email = null)
+    public IActionResult OnGet(string? code = null)
     {
         if (code == null)
         {
@@ -65,7 +65,7 @@ public class ResetPasswordModel : PageModel
             Input = new InputModel
             {
                 Code = decodedCode,
-                Email = email ?? string.Empty
+                Email = string.Empty // User must enter their email manually for privacy
             };
             return Page();
         }

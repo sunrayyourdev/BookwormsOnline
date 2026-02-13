@@ -49,10 +49,13 @@ public class ForgotPasswordModel : PageModel
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             var codeEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            
+            // Remove email from URL to prevent PII exposure in reset link
+            // User will need to enter their email address on the reset page
             var callbackUrl = Url.Page(
                 "/ResetPassword",
                 pageHandler: null,
-                values: new { code = codeEncoded, email = user.Email },
+                values: new { code = codeEncoded },
                 protocol: Request.Scheme);
 
             // Pass the callback URL to the email service
