@@ -223,6 +223,22 @@ var trim = function( str ) {
 	return str.replace( /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "" );
 };
 
+// Sanitize selector-like settings to avoid interpreting HTML as a selector
+var sanitizeSelector = function( selector ) {
+	if ( typeof selector !== "string" ) {
+		return null;
+	}
+
+	selector = trim( selector );
+
+	// If the selector starts with "<", jQuery would treat it as HTML; avoid that.
+	if ( selector.charAt( 0 ) === "<" ) {
+		return null;
+	}
+
+	return selector;
+};
+
 // Custom selectors
 $.extend( $.expr.pseudos || $.expr[ ":" ], {		// '|| $.expr[ ":" ]' here enables backwards compatibility to jQuery 1.7. Can be removed when dropping jQ 1.7.x support
 
@@ -1068,8 +1084,14 @@ $.extend( $.validator, {
 				element = this.findByName( element.name );
 			}
 
-			// Always apply ignore filter
-			return $( element ).not( this.settings.ignore )[ 0 ];
+			// Always apply ignore filter, but sanitize the ignore selector to
+			// prevent it from being interpreted as HTML.
+			var ignoreSelector = sanitizeSelector( this.settings.ignore );
+			if ( ignoreSelector ) {
+				return $( element ).not( ignoreSelector )[ 0 ];
+			}
+
+			return $( element )[ 0 ];
 		},
 
 		checkable: function( element ) {
