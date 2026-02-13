@@ -1,35 +1,72 @@
 ﻿@page
 @model BookwormsOnline.Pages.LoginModel
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Login";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <hr />
-                <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <input type="hidden" id="recaptchaToken" asp-for="Input.Token" />
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div class="mt-3">
-                    <a asp-page="./ForgotPassword">Forgot your password?</a>
-                </div>
-            </form>
-        </section>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </h2>
+
+                <form id="account" method="post" class="needs-validation">
+                    <!-- Validation Summary (hidden by default, shown via toast) -->
+                    <div asp-validation-summary="All" class="d-none text-danger" role="alert" id="validationSummary"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">
+                            <i class="bi bi-envelope"></i> Email Address
+                        </label>
+                        <input asp-for="Input.Email" class="form-control form-control-lg" 
+                               autocomplete="username" aria-required="true" 
+                               placeholder="you@example.com" />
+                        <span asp-validation-for="Input.Email" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Password" class="form-label">
+                            <i class="bi bi-lock"></i> Password
+                        </label>
+                        <input asp-for="Input.Password" class="form-control form-control-lg" 
+                               autocomplete="current-password" aria-required="true" 
+                               placeholder="Enter your password" />
+                        <span asp-validation-for="Input.Password" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <input type="hidden" id="recaptchaToken" asp-for="Input.Token" />
+
+                    <button id="login-submit" type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </button>
+
+                    <div class="d-grid gap-2">
+                        <a asp-page="./ForgotPassword" class="btn btn-outline-secondary">
+                            <i class="bi bi-question-circle"></i> Forgot Password?
+                        </a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <p class="text-center text-muted mb-0">
+                    Don't have an account? 
+                    <a asp-page="./Register" class="text-decoration-none fw-bold">Register here</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Security Information Notice -->
+        <div class="mt-4 p-3 bg-light rounded-3 text-center">
+            <small class="text-muted">
+                <i class="bi bi-shield-check"></i> 
+                This site is protected by reCAPTCHA and the Google 
+                <a href="https://policies.google.com/privacy" target="_blank" class="text-muted">Privacy Policy</a> and 
+                <a href="https://policies.google.com/terms" target="_blank" class="text-muted">Terms of Service</a> apply.
+            </small>
+        </div>
     </div>
 </div>
 
@@ -39,10 +76,28 @@
     {
         <script src="https://www.google.com/recaptcha/api.js?render=@Model.ReCaptchaSiteKey"></script>
         <script>
+            // Check for server-side validation errors on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                var validationSummary = document.getElementById('validationSummary');
+                
+                // If validation summary has content, show errors as toast
+                if (validationSummary && validationSummary.textContent.trim() !== '') {
+                    var errorMessages = validationSummary.textContent.trim().split('\n');
+                    
+                    // Show first error as generic login failure message
+                    window.toast.danger('Login failed. Please check your credentials and try again.');
+                    
+                    // Log all errors for debugging
+                    console.log('Login validation errors:', errorMessages);
+                }
+
+                // Initialize reCAPTCHA badge
+                initializeRecaptcha();
+            });
+
             var recaptchaInitialized = false;
 
-            // Execute reCAPTCHA on page load to display the badge
-            window.addEventListener('load', function () {
+            function initializeRecaptcha() {
                 grecaptcha.ready(function () {
                     // Execute once on page load to render the reCAPTCHA badge
                     grecaptcha.execute('@Model.ReCaptchaSiteKey', { action: 'page_load' }).then(function (token) {
@@ -50,15 +105,14 @@
                         recaptchaInitialized = true;
                     }).catch(function (error) {
                         console.error('Failed to initialize reCAPTCHA badge:', error);
+                        window.toast.warning('Security service initialization incomplete. Please refresh the page.');
                     });
                 });
 
-                // Attach form submission handler only once
-                if (!recaptchaInitialized) {
-                    var form = document.getElementById('account');
-                    form.addEventListener('submit', handleFormSubmit);
-                }
-            });
+                // Attach form submission handler
+                var form = document.getElementById('account');
+                form.addEventListener('submit', handleFormSubmit);
+            }
 
             // Handle form submission with fresh reCAPTCHA token
             function handleFormSubmit(e) {
@@ -68,7 +122,7 @@
                 var submitButton = document.getElementById('login-submit');
                 submitButton.disabled = true;
                 var originalText = submitButton.textContent;
-                submitButton.textContent = 'Signing in...';
+                submitButton.textContent = 'Verifying...';
                 
                 console.log('Form submit event triggered, requesting fresh reCAPTCHA token');
 
@@ -78,19 +132,32 @@
                         if (token && token.length > 0) {
                             // Set the token in the hidden field
                             document.getElementById('recaptchaToken').value = token;
-                            console.log('Fresh reCAPTCHA token generated successfully: ' + token.substring(0, 10) + '...');
+                            console.log('Fresh reCAPTCHA token generated successfully');
                             
+                            // Validate form before submission
+                            var form = document.getElementById('account');
+                            if (form.checkValidity() === false) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.toast.warning('Please check your input and try again.');
+                                submitButton.disabled = false;
+                                submitButton.textContent = originalText;
+                                return;
+                            }
+
                             // Use setTimeout to ensure token is set before form submission
                             setTimeout(function () {
                                 document.getElementById('account').submit();
                             }, 100);
                         } else {
                             console.error('Failed to generate reCAPTCHA token - token is empty');
+                            window.toast.warning('Security verification failed. Please try again.');
                             submitButton.disabled = false;
                             submitButton.textContent = originalText;
                         }
                     }).catch(function (error) {
                         console.error('reCAPTCHA execution error:', error);
+                        window.toast.warning('Security verification encountered an issue. Please try again.');
                         submitButton.disabled = false;
                         submitButton.textContent = originalText;
                     });
@@ -101,7 +168,13 @@
     else
     {
         <script>
-            console.error('reCAPTCHA SiteKey not configured. Check RECAPTCHA_SITEKEY environment variable.');
+            document.addEventListener('DOMContentLoaded', function() {
+                console.error('reCAPTCHA SiteKey not configured. Check RECAPTCHA_SITEKEY environment variable.');
+                window.toast.danger('Security service not configured. Please contact support.');
+            });
         </script>
     }
 }
+
+
+

@@ -9,50 +9,69 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BookwormsOnline.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">BookwormsOnline</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand fw-bold" asp-area="" asp-page="/Index">
+                    <i class="bi bi-book-fill"></i> BookwormsOnline
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-page="/Index">
+                                <i class="bi bi-house-door"></i> Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-page="/Privacy">
+                                <i class="bi bi-shield-check"></i> Privacy
+                            </a>
                         </li>
-                    </ul>
-                    <ul class="navbar-nav">
+                        
                         @using Microsoft.AspNetCore.Identity
                         @using BookwormsOnline.Models
                         @inject SignInManager<ApplicationUser> SignInManager
 
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/ChangePassword">Change Password</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/TwoFactorAuthentication">2FA Setup</a>
-                            </li>
-                            <li class="nav-item">
-                                <form class="form-inline" asp-page="/Logout" method="post">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-                                </form>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle"></i> Account
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/ChangePassword">
+                                        <i class="bi bi-key"></i> Change Password
+                                    </a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/TwoFactorAuthentication">
+                                        <i class="bi bi-shield-lock"></i> 2FA Setup
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-page="/Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Register">Register</a>
+                                <a class="nav-link" asp-area="" asp-page="/Register">
+                                    <i class="bi bi-person-plus"></i> Register
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Login">Login</a>
+                                <a class="nav-link btn btn-primary text-white btn-sm ms-2" asp-area="" asp-page="/Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
                             </li>
                         }
                     </ul>
@@ -60,20 +79,25 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - BookwormsOnline - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <main class="flex-grow-1">
+        <div class="container mt-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="border-top bg-light text-muted py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 - BookwormsOnline Security Suite - <a asp-area="" asp-page="/Privacy" class="text-muted text-decoration-none">Privacy</a></p>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/toast-notifications.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
