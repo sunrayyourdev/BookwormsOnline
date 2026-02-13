@@ -19,13 +19,14 @@ public class EmailSender : IPasswordResetEmailSender
     }
 
     /// <summary>
-    /// Redacts an email address for safe logging by producing a non-reversible token.
+    /// Generates a non-identifying, non-reversible token for an email address suitable for logging.
+    /// The token is a salted hash that cannot be used to identify or reconstruct the original email.
     /// Example: user@example.com becomes email:[ABC12345]
     /// </summary>
-    /// <param name="email">The email address to redact</param>
+    /// <param name="email">The email address to convert to a logging token</param>
     /// <returns>
-    /// A non-reversible representation of the email address suitable for logs,
-    /// or a placeholder if input is null/empty/invalid.
+    /// A non-reversible, non-identifying token suitable for logs that allows correlation
+    /// of log entries without exposing private data. Returns a placeholder if input is null/empty/invalid.
     /// </returns>
     private string RedactEmail(string email)
     {
@@ -36,14 +37,21 @@ public class EmailSender : IPasswordResetEmailSender
 
         try
         {
-            // Use a one-way hash so the original email cannot be reconstructed
+            // Use a salted one-way hash so the original email cannot be reconstructed
+            // The salt ensures that even if someone has a dictionary of email hashes,
+            // they cannot reverse-engineer the original email from the log
+            const string SALT = "BookwormsOnline-Email-Log-Salt-2026"; // Application-wide constant salt
+            
             using (var sha256 = SHA256.Create())
             {
-                var bytes = Encoding.UTF8.GetBytes(email);
+                // Combine email with salt to create a non-reversible token
+                var saltedEmail = email + SALT;
+                var bytes = Encoding.UTF8.GetBytes(saltedEmail);
                 var hashBytes = sha256.ComputeHash(bytes);
                 var hashString = Convert.ToBase64String(hashBytes);
 
-                // Use only a prefix to keep log messages compact while still allowing correlation
+                // Use only a truncated prefix to keep log messages compact
+                // This provides correlation capability while being completely non-identifying
                 var prefixLength = Math.Min(12, hashString.Length);
                 var hashPrefix = hashString.Substring(0, prefixLength);
 
