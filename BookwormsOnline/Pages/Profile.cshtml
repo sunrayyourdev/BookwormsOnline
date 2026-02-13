@@ -10,20 +10,20 @@
             <div class="card-body text-center">
                 @if (!string.IsNullOrEmpty(Model.AppUser?.PhotoPath))
                 {
-                    <img src="@Model.AppUser.PhotoPath" alt="Profile Photo" class="img-fluid rounded-circle mb-3" style="max-width: 140px;" />
+                    <img src="@Model.AppUser.PhotoPath" alt="Profile Photo" class="profile-avatar img-fluid mb-3" />
                 }
                 else
                 {
-                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 140px; height: 140px;">
+                    <div class="profile-avatar bg-light d-inline-flex align-items-center justify-content-center mb-3">
                         <i class="bi bi-person fs-1"></i>
                     </div>
                 }
                 <h4 class="fw-bold mb-1">@Model.AppUser?.FirstName @Model.AppUser?.LastName</h4>
                 <p class="text-muted mb-3">@Model.AppUser?.Email</p>
                 <div class="d-grid gap-2">
-                    <a class="btn btn-outline-primary" asp-page="/ChangePassword">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                         <i class="bi bi-key"></i> Change Password
-                    </a>
+                    </button>
                     <a class="btn btn-outline-secondary" asp-page="/TwoFactorAuthentication">
                         <i class="bi bi-shield-lock"></i> Manage 2FA
                     </a>
@@ -36,7 +36,18 @@
                 <ul class="list-unstyled mb-0">
                     <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Encrypted payments</li>
                     <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Account lockout protection</li>
-                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Two-factor available</li>
+                    <li class="mb-2">
+                        @if (Model.IsTwoFactorEnabled)
+                        {
+                            <i class="bi bi-check-circle text-success"></i>
+                            <span>Two-factor enabled</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-exclamation-circle text-warning"></i>
+                            <span>Two-factor not enabled</span>
+                        }
+                    </li>
                 </ul>
             </div>
         </div>
@@ -90,7 +101,13 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-sm-4 text-muted">Saved Card</div>
-                    <div class="col-sm-8 fw-semibold">@Model.MaskedCreditCard</div>
+                    <div class="col-sm-8 fw-semibold">
+                        <span id="maskedCard" class="card-number">@Model.MaskedCreditCard</span>
+                        <span id="fullCard" class="d-none card-number">@Model.FullCreditCard</span>
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none" id="toggleCardBtn">
+                            <i class="bi bi-eye"></i> Show
+                        </button>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-4 text-muted">Last Password Update</div>
@@ -101,3 +118,113 @@
     </div>
 </div>
 
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordLabel">
+                    <i class="bi bi-key"></i> Change Password
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm" method="post" asp-page="/ChangePassword">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label" for="OldPassword">Current Password</label>
+                        <input type="password" class="form-control" id="OldPassword" name="Input.OldPassword" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="NewPassword">New Password</label>
+                        <input type="password" class="form-control" id="NewPassword" name="Input.NewPassword" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="ConfirmPassword">Confirm New Password</label>
+                        <input type="password" class="form-control" id="ConfirmPassword" name="Input.ConfirmPassword" required />
+                    </div>
+
+                    <div id="changePasswordErrors" class="alert alert-danger d-none"></div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="changePasswordSubmit">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        const changePasswordErrors = document.getElementById('changePasswordErrors');
+        const changePasswordSubmit = document.getElementById('changePasswordSubmit');
+
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                changePasswordErrors.classList.add('d-none');
+                changePasswordErrors.textContent = '';
+
+                changePasswordSubmit.disabled = true;
+                const originalText = changePasswordSubmit.textContent;
+                changePasswordSubmit.textContent = 'Updating...';
+
+                try {
+                    const response = await fetch(changePasswordForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new FormData(changePasswordForm)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                        modal.hide();
+                        changePasswordForm.reset();
+                        window.toast.success(result.message || 'Password changed successfully.');
+                    } else {
+                        changePasswordErrors.classList.remove('d-none');
+                        changePasswordErrors.textContent = (result.errors || ['Unable to change password.']).join(' ');
+                    }
+                } catch (error) {
+                    changePasswordErrors.classList.remove('d-none');
+                    changePasswordErrors.textContent = 'An unexpected error occurred. Please try again.';
+                } finally {
+                    changePasswordSubmit.disabled = false;
+                    changePasswordSubmit.textContent = originalText;
+                }
+            });
+        }
+
+        // Existing card toggle script
+        const toggleBtn = document.getElementById('toggleCardBtn');
+        const maskedCard = document.getElementById('maskedCard');
+        const fullCard = document.getElementById('fullCard');
+        let isVisible = false;
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                isVisible = !isVisible;
+                if (isVisible) {
+                    maskedCard.classList.add('d-none');
+                    fullCard.classList.remove('d-none');
+                    toggleBtn.innerHTML = '<i class="bi bi-eye-slash"></i> Hide';
+                } else {
+                    fullCard.classList.add('d-none');
+                    maskedCard.classList.remove('d-none');
+                    toggleBtn.innerHTML = '<i class="bi bi-eye"></i> Show';
+                }
+            });
+        }
+    </script>
+}

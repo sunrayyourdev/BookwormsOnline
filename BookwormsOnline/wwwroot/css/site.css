@@ -388,3 +388,18 @@ footer a:hover {
     background-color: var(--primary-color);
     color: white;
 }
+
+/* ===== PROFILE ===== */
+
+.profile-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.card-number {
+    font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}

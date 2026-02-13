@@ -58,12 +58,6 @@
                                     <li><a class="dropdown-item" asp-area="" asp-page="/Profile">
                                         <i class="bi bi-person"></i> Profile
                                     </a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/ChangePassword">
-                                        <i class="bi bi-key"></i> Change Password
-                                    </a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-page="/TwoFactorAuthentication">
-                                        <i class="bi bi-shield-lock"></i> 2FA Setup
-                                    </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-page="/Logout" method="post" class="d-inline">
@@ -109,6 +103,32 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/toast-notifications.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (TempData["ToastMessage"] is string toastMessage)
+    {
+        var toastType = TempData["ToastType"] as string ?? "success";
+        <script>
+            (function () {
+                const message = @System.Text.Json.JsonSerializer.Serialize(toastMessage);
+                const type = @System.Text.Json.JsonSerializer.Serialize(toastType);
+                const showToast = function () {
+                    if (window.toast && typeof window.toast[type] === 'function') {
+                        window.toast[type](message);
+                    } else if (window.toast) {
+                        window.toast.success(message);
+                    } else {
+                        console.warn('Toast system not initialized:', message);
+                    }
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', showToast);
+                } else {
+                    showToast();
+                }
+            })();
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

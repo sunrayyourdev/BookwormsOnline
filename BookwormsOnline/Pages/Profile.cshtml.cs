@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Web;
+using System.Linq;
 
 namespace BookwormsOnline.Pages
 {
@@ -24,8 +25,10 @@ namespace BookwormsOnline.Pages
 
         public ApplicationUser? AppUser { get; set; }
         public string MaskedCreditCard { get; set; } = string.Empty;
+        public string FullCreditCard { get; set; } = string.Empty;
         public string DecodedBillingAddress { get; set; } = string.Empty;
         public string DecodedShippingAddress { get; set; } = string.Empty;
+        public bool IsTwoFactorEnabled { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -37,25 +40,46 @@ namespace BookwormsOnline.Pages
             }
 
             var decryptedCard = _encryptionService.Decrypt(AppUser.CreditCardNumber);
+            FullCreditCard = FormatCardNumber(NormalizeDigits(decryptedCard));
             MaskedCreditCard = MaskCardNumber(decryptedCard);
 
             // HTML-decode addresses for safe display
             DecodedBillingAddress = HttpUtility.HtmlDecode(AppUser.BillingAddress);
             DecodedShippingAddress = HttpUtility.HtmlDecode(AppUser.ShippingAddress);
 
+            IsTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(AppUser);
+
             return Page();
         }
 
         private static string MaskCardNumber(string cardNumber)
         {
-            if (string.IsNullOrWhiteSpace(cardNumber) || cardNumber.Length < 4)
+            var digits = NormalizeDigits(cardNumber);
+            if (string.IsNullOrWhiteSpace(digits) || digits.Length < 4)
             {
                 return "****";
             }
 
-            var last4 = cardNumber[^4..];
+            var last4 = digits[^4..];
             return $"**** **** **** {last4}";
+        }
+
+        private static string NormalizeDigits(string input)
+        {
+            return new string(input.Where(char.IsDigit).ToArray());
+        }
+
+        private static string FormatCardNumber(string digits)
+        {
+            if (string.IsNullOrWhiteSpace(digits))
+            {
+                return "";
+            }
+
+            var groups = Enumerable.Range(0, (digits.Length + 3) / 4)
+                .Select(i => digits.Substring(i * 4, Math.Min(4, digits.Length - i * 4)));
+
+            return string.Join(" ", groups);
         }
     }
 }
-

@@ -37,6 +37,12 @@ public class ChangePasswordModel : PageModel
     [TempData]
     public string StatusMessage { get; set; } = string.Empty;
 
+    [TempData]
+    public string? ToastMessage { get; set; }
+
+    [TempData]
+    public string? ToastType { get; set; }
+
     public class InputModel
     {
         [Required]
@@ -78,13 +84,23 @@ public class ChangePasswordModel : PageModel
     {
         if (!ModelState.IsValid)
         {
-            return Page();
+            return IsAjaxRequest() 
+                ? new JsonResult(new { success = false, errors = GetModelErrors() })
+                : Page();
         }
 
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            return IsAjaxRequest()
+                ? new JsonResult(new { success = false, errors = new[] { "Unable to load user information." } })
+                : NotFound("Unable to load user information.");
+        }
+
+        // If redirected due to expiry, show a message
+        if (Request.Query.ContainsKey("expired"))
+        {
+            StatusMessage = "Your password has expired. Please set a new password.";
         }
 
         // Check if the new password is the same as the current password
@@ -92,7 +108,9 @@ public class ChangePasswordModel : PageModel
         if (isCurrentPassword)
         {
             ModelState.AddModelError(string.Empty, "Your new password cannot be the same as your current password.");
-            return Page();
+            return IsAjaxRequest()
+                ? new JsonResult(new { success = false, errors = GetModelErrors() })
+                : Page();
         }
 
         // Check against password history
@@ -108,7 +126,9 @@ public class ChangePasswordModel : PageModel
             if (result == PasswordVerificationResult.Success)
             {
                 ModelState.AddModelError(string.Empty, "You cannot reuse any of your last 2 passwords.");
-                return Page();
+                return IsAjaxRequest()
+                    ? new JsonResult(new { success = false, errors = GetModelErrors() })
+                    : Page();
             }
         }
 
@@ -123,7 +143,9 @@ public class ChangePasswordModel : PageModel
                 ? $"{seconds / 60} minute(s) and {seconds % 60} second(s)" 
                 : $"{seconds} second(s)";
             ModelState.AddModelError(string.Empty, $"You changed your password too recently. Please wait {message} before trying again.");
-            return Page();
+            return IsAjaxRequest()
+                ? new JsonResult(new { success = false, errors = GetModelErrors() })
+                : Page();
         }
 
         var oldHash = user.PasswordHash;
@@ -147,7 +169,10 @@ public class ChangePasswordModel : PageModel
                 
                 ModelState.AddModelError(string.Empty, sanitizedMessage);
             }
-            return Page();
+
+            return IsAjaxRequest()
+                ? new JsonResult(new { success = false, errors = GetModelErrors() })
+                : Page();
         }
 
         // Update last password change timestamp
@@ -185,6 +210,29 @@ public class ChangePasswordModel : PageModel
         await _signInManager.RefreshSignInAsync(user);
         StatusMessage = "Your password has been changed.";
 
-        return RedirectToPage();
+        if (IsAjaxRequest())
+        {
+            return new JsonResult(new { success = true, message = "Password changed successfully." });
+        }
+
+        TempData["ToastMessage"] = "Password changed successfully.";
+        TempData["ToastType"] = "success";
+
+        return RedirectToPage("/Index");
+    }
+
+    private bool IsAjaxRequest()
+    {
+        return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    }
+
+    private string[] GetModelErrors()
+    {
+        return ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .Distinct()
+            .ToArray();
     }
 }
