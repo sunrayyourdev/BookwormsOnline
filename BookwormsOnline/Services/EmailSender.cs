@@ -136,4 +136,35 @@ public class EmailSender : IPasswordResetEmailSender
             throw;
         }
     }
+
+    /// <summary>
+    /// Returns a non-sensitive, deterministic representation of an email address
+    /// suitable for logging. The returned value is a SHA-256 hash and cannot be
+    /// used to reconstruct the original email.
+    /// </summary>
+    /// <param name="email">The email address to redact.</param>
+    /// <returns>A hashed representation of the email, or "N/A" if none.</returns>
+    private static string RedactEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return "N/A";
+        }
+
+        // Normalize the email to ensure consistent hashing
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var inputBytes = Encoding.UTF8.GetBytes("email:" + normalizedEmail);
+
+        using (var sha256 = SHA256.Create())
+        {
+            var hashBytes = sha256.ComputeHash(inputBytes);
+            var sb = new StringBuilder(hashBytes.Length * 2);
+            foreach (var b in hashBytes)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+
+            return "emailHash:" + sb.ToString();
+        }
+    }
 }
