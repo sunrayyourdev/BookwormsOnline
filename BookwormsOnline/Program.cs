@@ -61,7 +61,14 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 
 builder.Services.AddDataProtection();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
-builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
+
+// Register EmailSender with both interfaces
+// IPasswordResetEmailSender for password reset functionality
+// IEmailSender for ASP.NET Core Identity email requirements
+builder.Services.AddTransient<IPasswordResetEmailSender, EmailSender>();
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender>(provider =>
+    provider.GetRequiredService<IPasswordResetEmailSender>());
+
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 builder.Services.AddHttpClient<ReCaptchaService>();
