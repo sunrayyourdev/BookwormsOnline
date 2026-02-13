@@ -17,9 +17,10 @@ A comprehensive and secure ASP.NET Core Razor Pages web application designed wit
   - Lowercase letters (a-z)
   - Numeric digits (0-9)
   - Special characters (!@#$%^&*, etc.)
-- **Password Expiry Enforcement**: Mandatory password change every 90 days with middleware-level enforcement
+- **Password Expiry Enforcement**: Mandatory password change every 10 minutes (middleware enforced)
+- **Minimum Password Age**: Prevents rapid password cycling (2-minute minimum between changes)
 - **Password History Tracking**: Maintains history of changed passwords to prevent reuse
-- **Secure Password Reset**: Email-based reset tokens with expiration validation
+- **Secure Password Reset**: Two-step reset flow (Verify page + POSTed code) with user-entered email
 
 ### 🤖 Bot & Abuse Prevention
 - **Google reCAPTCHA v3 Integration**: Advanced bot detection on login and registration pages
@@ -122,6 +123,7 @@ BookwormsOnline/
 │   ├── LoginWith2fa.cshtml(.cs)   # 2FA verification
 │   ├── ChangePassword.cshtml(.cs) # Password change with expiry
 │   ├── ForgotPassword.cshtml(.cs) # Password reset workflow
+│   ├── VerifyResetCode.cshtml(.cs) # Verify step for POST-based reset code
 │   └── ...                         # Other pages
 ├── Models/                         # Data models
 │   ├── ApplicationUser.cs          # Extended Identity user
@@ -135,7 +137,7 @@ BookwormsOnline/
 │   ├── PhotoUploadService.cs      # Secure file uploads
 │   └── StandardAddressAttribute.cs # Address validation
 ├── Middleware/                     # Custom middleware
-│   └── PasswordAgeMiddleware.cs   # 90-day password expiry enforcement
+│   └── PasswordAgeMiddleware.cs   # 10-minute password expiry enforcement
 ├── Data/                           # Database context
 │   └── ApplicationDbContext.cs     # EF Core configuration
 ├── Migrations/                     # Database migrations
