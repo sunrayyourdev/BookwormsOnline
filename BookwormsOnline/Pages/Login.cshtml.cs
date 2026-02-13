@@ -79,16 +79,32 @@ public class LoginModel : PageModel
     {
         returnUrl ??= Url.Content("~/");
 
+        // Ensure ReCaptchaSiteKey is set for the view in case we return early
+        ReCaptchaSiteKey = Environment.GetEnvironmentVariable("RECAPTCHA_SITEKEY");
+
         if (ModelState.IsValid)
         {
-            // Verify reCAPTCHA
-            if (string.IsNullOrEmpty(Input.Token) || !await _reCaptchaService.VerifyAsync(Input.Token))
+            // Validate reCAPTCHA FIRST - before any database operations
+            if (string.IsNullOrEmpty(Input.Token))
             {
-                ModelState.AddModelError(string.Empty, "reCAPTCHA verification failed. Please try again.");
+                _logger.LogWarning("reCAPTCHA token is empty on login attempt");
+                ModelState.AddModelError(string.Empty, "Captcha verification failed. Please try again.");
                 return Page();
             }
 
+            _logger.LogInformation($"Verifying reCAPTCHA token: {Input.Token.Substring(0, Math.Min(10, Input.Token.Length))}...");
+            
+            if (!await _reCaptchaService.VerifyAsync(Input.Token))
+            {
+                _logger.LogWarning("reCAPTCHA verification failed for login attempt");
+                ModelState.AddModelError(string.Empty, "Captcha verification failed. Please try again.");
+                return Page();
+            }
+
+            _logger.LogInformation("reCAPTCHA verification successful, proceeding with login");
+
             var user = await _userManager.FindByEmailAsync(Input.Email);
+            // ...existing code...
             if (user != null)
             {
                 // Concurrent Session Control: Invalidate other sessions by updating the security stamp BEFORE sign-in

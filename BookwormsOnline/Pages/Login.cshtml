@@ -39,15 +39,63 @@
     {
         <script src="https://www.google.com/recaptcha/api.js?render=@Model.ReCaptchaSiteKey"></script>
         <script>
-            document.getElementById('account').addEventListener('submit', function (e) {
-                e.preventDefault();
+            var recaptchaInitialized = false;
+
+            // Execute reCAPTCHA on page load to display the badge
+            window.addEventListener('load', function () {
                 grecaptcha.ready(function () {
-                    grecaptcha.execute('@Model.ReCaptchaSiteKey', { action: 'login' }).then(function (token) {
-                        document.getElementById('recaptchaToken').value = token;
-                        document.getElementById('account').submit();
+                    // Execute once on page load to render the reCAPTCHA badge
+                    grecaptcha.execute('@Model.ReCaptchaSiteKey', { action: 'page_load' }).then(function (token) {
+                        console.log('reCAPTCHA badge initialized on page load');
+                        recaptchaInitialized = true;
+                    }).catch(function (error) {
+                        console.error('Failed to initialize reCAPTCHA badge:', error);
                     });
                 });
+
+                // Attach form submission handler only once
+                if (!recaptchaInitialized) {
+                    var form = document.getElementById('account');
+                    form.addEventListener('submit', handleFormSubmit);
+                }
             });
+
+            // Handle form submission with fresh reCAPTCHA token
+            function handleFormSubmit(e) {
+                e.preventDefault();
+                
+                // Disable submit button to prevent double submissions
+                var submitButton = document.getElementById('login-submit');
+                submitButton.disabled = true;
+                var originalText = submitButton.textContent;
+                submitButton.textContent = 'Signing in...';
+                
+                console.log('Form submit event triggered, requesting fresh reCAPTCHA token');
+
+                grecaptcha.ready(function () {
+                    // Execute reCAPTCHA to get a fresh token for this attempt
+                    grecaptcha.execute('@Model.ReCaptchaSiteKey', { action: 'login' }).then(function (token) {
+                        if (token && token.length > 0) {
+                            // Set the token in the hidden field
+                            document.getElementById('recaptchaToken').value = token;
+                            console.log('Fresh reCAPTCHA token generated successfully: ' + token.substring(0, 10) + '...');
+                            
+                            // Use setTimeout to ensure token is set before form submission
+                            setTimeout(function () {
+                                document.getElementById('account').submit();
+                            }, 100);
+                        } else {
+                            console.error('Failed to generate reCAPTCHA token - token is empty');
+                            submitButton.disabled = false;
+                            submitButton.textContent = originalText;
+                        }
+                    }).catch(function (error) {
+                        console.error('reCAPTCHA execution error:', error);
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    });
+                });
+            }
         </script>
     }
     else
