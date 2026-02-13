@@ -152,30 +152,20 @@ namespace BookwormsOnline.Pages
                 await _auditLogService.LogAsync(null, Input.Email, "Registration Failed", ipAddress);
                 foreach (var error in result.Errors)
                 {
-                    // Customize error messages for better user experience
-                    string customErrorMessage = error.Description;
-                    
-                    // Replace generic "Username" error with email-specific message
-                    if (error.Code == "DuplicateUserName" || error.Description.Contains("already taken"))
+                    // Sanitize error messages to prevent sensitive data exposure
+                    // Use user-friendly generic messages instead of exposing Identity framework details
+                    string customErrorMessage = error.Code switch
                     {
-                        customErrorMessage = $"The email address '{Input.Email}' is already registered. Please use a different email or try logging in.";
-                    }
-                    else if (error.Code == "DuplicateEmail")
-                    {
-                        customErrorMessage = $"The email address '{Input.Email}' is already registered. Please use a different email or try logging in.";
-                    }
-                    else if (error.Code == "InvalidEmail")
-                    {
-                        customErrorMessage = "The email address provided is invalid.";
-                    }
-                    else if (error.Code == "PasswordTooShort")
-                    {
-                        customErrorMessage = "Password must be at least 12 characters long.";
-                    }
-                    else if (error.Code == "PasswordRequiresNonAlphanumeric")
-                    {
-                        customErrorMessage = "Password must contain at least one special character.";
-                    }
+                        "DuplicateUserName" => $"The email address '{Input.Email}' is already registered. Please use a different email or try logging in.",
+                        "DuplicateEmail" => $"The email address '{Input.Email}' is already registered. Please use a different email or try logging in.",
+                        "InvalidEmail" => "The email address provided is invalid.",
+                        "PasswordTooShort" => "Password must be at least 12 characters long.",
+                        "PasswordRequiresNonAlphanumeric" => "Password must contain at least one special character.",
+                        "PasswordRequiresDigit" => "Password must contain at least one digit.",
+                        "PasswordRequiresLower" => "Password must contain at least one lowercase letter.",
+                        "PasswordRequiresUpper" => "Password must contain at least one uppercase letter.",
+                        _ => "Registration failed. Please ensure all information is valid and try again."
+                    };
                     
                     ModelState.AddModelError(string.Empty, customErrorMessage);
                 }
