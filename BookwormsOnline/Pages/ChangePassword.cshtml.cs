@@ -43,6 +43,9 @@ public class ChangePasswordModel : PageModel
     [TempData]
     public string? ToastType { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
+
     public class InputModel
     {
         [Required]
@@ -75,6 +78,11 @@ public class ChangePasswordModel : PageModel
         if (Request.Query.ContainsKey("expired"))
         {
             StatusMessage = "Your password has expired. Please set a new password.";
+            ReturnUrl = "/Index";
+        }
+        else if (string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            ReturnUrl = "/Index";
         }
 
         return Page();
@@ -101,6 +109,7 @@ public class ChangePasswordModel : PageModel
         if (Request.Query.ContainsKey("expired"))
         {
             StatusMessage = "Your password has expired. Please set a new password.";
+            ReturnUrl = "/Index";
         }
 
         // Check if the new password is the same as the current password
@@ -208,7 +217,7 @@ public class ChangePasswordModel : PageModel
         await _auditLogService.LogAsync(user.Id, user.Email!, "Password Changed", ipAddress);
 
         await _signInManager.RefreshSignInAsync(user);
-        StatusMessage = "Your password has been changed.";
+        // StatusMessage is reserved for expiry info; success uses toast + redirect.
 
         if (IsAjaxRequest())
         {
@@ -217,6 +226,11 @@ public class ChangePasswordModel : PageModel
 
         TempData["ToastMessage"] = "Password changed successfully.";
         TempData["ToastType"] = "success";
+
+        if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+        {
+            return LocalRedirect(ReturnUrl);
+        }
 
         return RedirectToPage("/Index");
     }

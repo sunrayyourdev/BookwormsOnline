@@ -15,9 +15,12 @@
                 <a class="btn btn-primary btn-lg" href="#featured">
                     <i class="bi bi-stars"></i> Featured Books
                 </a>
-                <a class="btn btn-outline-secondary btn-lg" asp-page="/Register">
-                    <i class="bi bi-person-plus"></i> Create Account
-                </a>
+                @if (!(User.Identity?.IsAuthenticated ?? false))
+                {
+                    <a class="btn btn-outline-secondary btn-lg" asp-page="/Login">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In Now
+                    </a>
+                }
             </div>
         </div>
         <div class="col-lg-6 mt-4 mt-lg-0">

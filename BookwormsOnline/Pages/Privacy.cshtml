@@ -3,6 +3,54 @@
 @{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">
+                    <i class="bi bi-shield-check"></i> Privacy Policy
+                </h2>
+
+                <h5 class="fw-bold mb-3">Introduction</h5>
+                <p class="text-muted mb-4 small">
+                    BookwormsOnline is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your personal information.
+                </p>
+
+                <h5 class="fw-bold mb-3">Information We Collect</h5>
+                <ul class="text-muted mb-4 small ps-3">
+                    <li class="mb-2"><strong>Personal:</strong> Name, email, phone, payment details.</li>
+                    <li class="mb-2"><strong>Profile:</strong> Photo, billing and shipping address.</li>
+                    <li class="mb-2"><strong>Technical:</strong> IP address, browser type, activity.</li>
+                </ul>
+
+                <h5 class="fw-bold mb-3">How We Use Your Information</h5>
+                <ul class="text-muted mb-4 small ps-3">
+                    <li class="mb-2">Process orders and payments securely.</li>
+                    <li class="mb-2">Communicate about your account.</li>
+                    <li class="mb-2">Improve our website experience.</li>
+                    <li class="mb-2">Comply with legal requirements.</li>
+                </ul>
+
+                <h5 class="fw-bold mb-3">Security</h5>
+                <p class="text-muted mb-4 small">
+                    Your data is encrypted and protected with industry-standard security. We do not share your information with third parties without your consent.
+                </p>
+
+                <h5 class="fw-bold mb-3">Your Rights</h5>
+                <p class="text-muted mb-4 small">
+                    You have the right to access, correct, or delete your personal information. Contact us at <a href="mailto:support@bookwormsonline.com" class="text-decoration-none">support@bookwormsonline.com</a>.
+                </p>
+
+                <h5 class="fw-bold mb-3">Contact Us</h5>
+                <p class="text-muted small mb-4">
+                    If you have questions about this Privacy Policy, please contact our support team.
+                </p>
+
+                <a asp-page="/Index" class="btn btn-primary btn-lg w-100 mt-4">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

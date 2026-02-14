@@ -1,4 +1,4 @@
-﻿using BookwormsOnline.Models;
+﻿﻿using BookwormsOnline.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +42,12 @@ namespace BookwormsOnline.Pages
         public string? AuthenticatorUri { get; set; }
 
         public string? QrCodeImage { get; set; }
+
+        [TempData]
+        public string? ToastMessage { get; set; }
+
+        [TempData]
+        public string? ToastType { get; set; }
 
         public class InputModel
         {
@@ -101,7 +107,11 @@ namespace BookwormsOnline.Pages
             await _userManager.SetTwoFactorEnabledAsync(user, true);
             await _signInManager.RefreshSignInAsync(user);
 
-            return RedirectToPage();
+            // Set toast message and redirect to profile
+            TempData["ToastMessage"] = "Two-factor authentication enabled successfully!";
+            TempData["ToastType"] = "success";
+
+            return RedirectToPage("/Profile");
         }
 
         public async Task<IActionResult> OnPostDisableAsync()

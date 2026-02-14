@@ -4,93 +4,132 @@
     ViewData["Title"] = "Register";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">
+                    <i class="bi bi-person-plus"></i> Register
+                </h2>
 
-<div class="row">
-    <div class="col-md-8">
-        <form method="post" enctype="multipart/form-data">
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.FirstName" class="form-label"></label>
-                    <input asp-for="Input.FirstName" class="form-control" />
-                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.LastName" class="form-label"></label>
-                    <input asp-for="Input.LastName" class="form-control" />
-                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
-                </div>
-            </div>
+                <form method="post" enctype="multipart/form-data" class="needs-validation">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-            <div class="mb-3">
-                <label asp-for="Input.Email" class="form-label"></label>
-                <input asp-for="Input.Email" class="form-control" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.Password" class="form-label"></label>
-                    <input asp-for="Input.Password" class="form-control" id="passwordInput" onkeyup="checkPasswordStrength()" />
-                    <div id="password-strength-meter">
-                        <div id="password-strength-meter-fill"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.FirstName" class="form-label">
+                                <i class="bi bi-person"></i> First Name
+                            </label>
+                            <input asp-for="Input.FirstName" class="form-control form-control-lg" />
+                            <span asp-validation-for="Input.FirstName" class="invalid-feedback d-block"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.LastName" class="form-label">
+                                <i class="bi bi-person"></i> Last Name
+                            </label>
+                            <input asp-for="Input.LastName" class="form-control form-control-lg" />
+                            <span asp-validation-for="Input.LastName" class="invalid-feedback d-block"></span>
+                        </div>
                     </div>
-                    <small id="password-strength-text" class="form-text"></small>
-                    
-                    <div id="password-checklist" class="mt-2">
-                        <div id="check-length" class="checklist-item"><i class="bi bi-circle"></i> Minimum 12 characters</div>
-                        <div id="check-upper" class="checklist-item"><i class="bi bi-circle"></i> At least one uppercase letter</div>
-                        <div id="check-lower" class="checklist-item"><i class="bi bi-circle"></i> At least one lowercase letter</div>
-                        <div id="check-number" class="checklist-item"><i class="bi bi-circle"></i> At least one number</div>
-                        <div id="check-special" class="checklist-item"><i class="bi bi-circle"></i> At least one special character</div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">
+                            <i class="bi bi-envelope"></i> Email Address
+                        </label>
+                        <input asp-for="Input.Email" class="form-control form-control-lg" />
+                        <span asp-validation-for="Input.Email" class="invalid-feedback d-block"></span>
                     </div>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.ConfirmPassword" class="form-label"></label>
-                    <input asp-for="Input.ConfirmPassword" class="form-control" />
-                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.Mobile" class="form-label"></label>
-                    <input asp-for="Input.Mobile" class="form-control" />
-                    <span asp-validation-for="Input.Mobile" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.CreditCardNumber" class="form-label"></label>
-                    <input asp-for="Input.CreditCardNumber" class="form-control" />
-                    <span asp-validation-for="Input.CreditCardNumber" class="text-danger"></span>
-                </div>
-            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Password" class="form-label">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input asp-for="Input.Password" class="form-control form-control-lg" id="passwordInput" onkeyup="checkPasswordStrength()" />
+                            <div id="password-strength-meter" class="mt-2">
+                                <div id="password-strength-meter-fill"></div>
+                            </div>
+                            <small id="password-strength-text" class="form-text text-muted"></small>
 
-            <div class="mb-3">
-                <label asp-for="Input.BillingAddress" class="form-label"></label>
-                <textarea asp-for="Input.BillingAddress" class="form-control"></textarea>
-                <span asp-validation-for="Input.BillingAddress" class="text-danger"></span>
-            </div>
+                            <div id="password-checklist" class="mt-3">
+                                <div id="check-length" class="checklist-item"><i class="bi bi-circle"></i> Minimum 12 characters</div>
+                                <div id="check-upper" class="checklist-item"><i class="bi bi-circle"></i> At least one uppercase letter</div>
+                                <div id="check-lower" class="checklist-item"><i class="bi bi-circle"></i> At least one lowercase letter</div>
+                                <div id="check-number" class="checklist-item"><i class="bi bi-circle"></i> At least one number</div>
+                                <div id="check-special" class="checklist-item"><i class="bi bi-circle"></i> At least one special character</div>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="invalid-feedback d-block"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.ConfirmPassword" class="form-label">
+                                <i class="bi bi-check2-circle"></i> Confirm Password
+                            </label>
+                            <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" />
+                            <span asp-validation-for="Input.ConfirmPassword" class="invalid-feedback d-block"></span>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Input.ShippingAddress" class="form-label"></label>
-                <textarea asp-for="Input.ShippingAddress" class="form-control"></textarea>
-                <span asp-validation-for="Input.ShippingAddress" class="text-danger"></span>
-            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Mobile" class="form-label">
+                                <i class="bi bi-telephone"></i> Mobile
+                            </label>
+                            <input asp-for="Input.Mobile" class="form-control form-control-lg" />
+                            <span asp-validation-for="Input.Mobile" class="invalid-feedback d-block"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.CreditCardNumber" class="form-label">
+                                <i class="bi bi-credit-card"></i> Credit Card Number
+                            </label>
+                            <input asp-for="Input.CreditCardNumber" class="form-control form-control-lg" />
+                            <span asp-validation-for="Input.CreditCardNumber" class="invalid-feedback d-block"></span>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Input.Photo" class="form-label"></label>
-                <input asp-for="Input.Photo" type="file" class="form-control" accept="image/jpeg" id="photoInput" onchange="validatePhotoFile()" />
-                <small class="form-text text-muted">Maximum file size: 2MB. Only JPEG images (.jpg) are allowed.</small>
-                <div id="photoError" class="text-danger mt-2" style="display:none;"></div>
-                <span asp-validation-for="Input.Photo" class="text-danger"></span>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.BillingAddress" class="form-label">
+                            <i class="bi bi-geo-alt"></i> Billing Address
+                        </label>
+                        <textarea asp-for="Input.BillingAddress" class="form-control form-control-lg" rows="3"></textarea>
+                        <span asp-validation-for="Input.BillingAddress" class="invalid-feedback d-block"></span>
+                    </div>
 
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
+                    <div class="mb-3">
+                        <label asp-for="Input.ShippingAddress" class="form-label">
+                            <i class="bi bi-truck"></i> Shipping Address
+                        </label>
+                        <textarea asp-for="Input.ShippingAddress" class="form-control form-control-lg" rows="3"></textarea>
+                        <span asp-validation-for="Input.ShippingAddress" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Photo" class="form-label">
+                            <i class="bi bi-camera"></i> Profile Photo (optional)
+                        </label>
+                        <input asp-for="Input.Photo" type="file" class="form-control" accept="image/jpeg" id="photoInput" onchange="validatePhotoFile()" />
+                        <small class="form-text text-muted">Maximum file size: 2MB. Only JPEG images (.jpg) are allowed.</small>
+                        <div id="photoError" class="text-danger mt-2" style="display:none;"></div>
+                        <span asp-validation-for="Input.Photo" class="invalid-feedback d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </button>
+
+                    <div class="d-grid gap-2">
+                        <a asp-page="/Login" class="btn btn-outline-secondary">
+                            <i class="bi bi-box-arrow-in-right"></i> Already have an account?
+                        </a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <p class="text-center text-muted mb-0">
+                    By creating an account, you agree to our security and privacy practices.
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 

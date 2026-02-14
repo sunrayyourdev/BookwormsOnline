@@ -5,7 +5,7 @@
 }
 
 <div class="row justify-content-center mt-5">
-    <div class="col-md-5 col-lg-4">
+    <div class="col-md-7 col-lg-6">
         <div class="card shadow">
             <div class="card-body p-5">
                 <h2 class="card-title text-center mb-4">
@@ -85,7 +85,7 @@
                     var errorMessages = validationSummary.textContent.trim().split('\n');
                     
                     // Show first error as generic login failure message
-                    window.toast.danger('Login failed. Please check your credentials and try again.');
+                    window.toast.danger('Invalid email or password.');
                     
                     // Log all errors for debugging
                     console.log('Login validation errors:', errorMessages);
@@ -175,6 +175,3 @@
         </script>
     }
 }
-
-
-

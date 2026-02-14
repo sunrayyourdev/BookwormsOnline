@@ -128,7 +128,7 @@ public class LoginModel : PageModel
                     var age = DateTime.UtcNow - user.LastPasswordChangedDate;
                     if (age > TimeSpan.FromDays(90))
                     {
-                        return RedirectToPage("./ChangePassword", new { expired = 1 });
+                        return RedirectToPage("./ChangePassword", new { expired = 1, returnUrl = "/Index" });
                     }
                 }
 
@@ -146,7 +146,7 @@ public class LoginModel : PageModel
             else
             {
                 await _auditLogService.LogAsync(user?.Id, Input.Email, "Login Failed", ipAddress);
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "Invalid email or password.");
                 return Page();
             }
         }
