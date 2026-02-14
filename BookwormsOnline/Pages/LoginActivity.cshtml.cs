@@ -61,6 +61,9 @@ public class LoginActivityModel : PageModel
         try
         {
             var currentSessionId = HttpContext.Session.Id;
+            
+            // Load sessions to check if we're revoking the current session
+            ActiveSessions = await _sessionService.GetActiveSessionsAsync(user.Id);
             var sessionToRevoke = ActiveSessions.FirstOrDefault(s => s.Id == sessionId);
 
             await _sessionService.RevokeSessionAsync(sessionId, user.Id);
