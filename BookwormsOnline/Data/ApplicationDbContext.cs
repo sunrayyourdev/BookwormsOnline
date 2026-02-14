@@ -13,4 +13,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<PasswordHistory> PasswordHistories { get; set; }
+    public DbSet<UserSession> UserSessions { get; set; }
 }

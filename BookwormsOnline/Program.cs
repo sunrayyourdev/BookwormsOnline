@@ -71,6 +71,7 @@ builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
+builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 builder.Services.AddHttpClient<ReCaptchaService>();
 
 // Configure file upload size limits (2MB) to prevent 413 Payload Too Large errors
@@ -118,6 +119,7 @@ app.UseSession();
 app.UseAuthentication();
 
 app.UseMiddleware<PasswordAgeMiddleware>();
+app.UseMiddleware<SessionActivityMiddleware>();
 
 app.UseAuthorization();
 

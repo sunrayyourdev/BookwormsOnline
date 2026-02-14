@@ -14,6 +14,7 @@ public class LoginModel : PageModel
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IAuditLogService _auditLogService;
     private readonly ReCaptchaService _reCaptchaService;
+    private readonly IUserSessionService _sessionService;
     private readonly ILogger<LoginModel> _logger;
 
     public LoginModel(
@@ -21,12 +22,14 @@ public class LoginModel : PageModel
         UserManager<ApplicationUser> userManager,
         IAuditLogService auditLogService,
         ReCaptchaService reCaptchaService,
+        IUserSessionService sessionService,
         ILogger<LoginModel> logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _auditLogService = auditLogService;
         _reCaptchaService = reCaptchaService;
+        _sessionService = sessionService;
         _logger = logger;
     }
 
@@ -124,6 +127,11 @@ public class LoginModel : PageModel
 
                 if (user != null)
                 {
+                    // Create session record
+                    var sessionId = HttpContext.Session.Id;
+                    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
+                    await _sessionService.CreateSessionAsync(user.Id, sessionId, ipAddress ?? "Unknown", userAgent);
+
                     // Enforce maximum password age (90 days) on login
                     var age = DateTime.UtcNow - user.LastPasswordChangedDate;
                     if (age > TimeSpan.FromDays(90))
