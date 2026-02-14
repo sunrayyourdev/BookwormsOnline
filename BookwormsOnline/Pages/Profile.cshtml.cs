@@ -13,13 +13,16 @@ namespace BookwormsOnline.Pages
     public class ProfileModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEncryptionService _encryptionService;
 
         public ProfileModel(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IEncryptionService encryptionService)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _encryptionService = encryptionService;
         }
 
@@ -36,6 +39,9 @@ namespace BookwormsOnline.Pages
 
             if (AppUser == null)
             {
+                // User is authenticated but data is not in database
+                // Sign them out and redirect to login
+                await _signInManager.SignOutAsync();
                 return RedirectToPage("/Login");
             }
 
