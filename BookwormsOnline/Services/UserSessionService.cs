@@ -104,16 +104,10 @@ public class UserSessionService : IUserSessionService
     {
         try
         {
-            var sessions = await _context.UserSessions
+            await _context.UserSessions
                 .Where(s => s.UserId == userId && s.SessionId != currentSessionId && !s.IsRevoked)
-                .ToListAsync();
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.IsRevoked, true));
 
-            foreach (var session in sessions)
-            {
-                session.IsRevoked = true;
-            }
-
-            await _context.SaveChangesAsync();
             _logger.LogInformation($"All other sessions revoked for user {userId}");
         }
         catch (Exception ex)

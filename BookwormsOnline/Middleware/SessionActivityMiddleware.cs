@@ -15,12 +15,15 @@ public class SessionActivityMiddleware
 
     public async Task InvokeAsync(HttpContext context, IUserSessionService sessionService)
     {
-        // Only track for authenticated users
-        if (context.User?.Identity?.IsAuthenticated == true)
+        // Continue processing the request
+        await _next(context);
+
+        // Update session activity after response (non-blocking for user)
+        if (context.User?.Identity?.IsAuthenticated == true && context.Response.StatusCode < 400)
         {
             var sessionId = context.Session.Id;
             
-            // Update last active timestamp (fire and forget to avoid blocking)
+            // Update in background without blocking response
             _ = Task.Run(async () =>
             {
                 try
@@ -29,11 +32,9 @@ public class SessionActivityMiddleware
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating session activity");
+                    _logger.LogError(ex, "Error updating session activity for session {SessionId}", sessionId);
                 }
             });
         }
-
-        await _next(context);
     }
 }
