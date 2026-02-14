@@ -6,14 +6,19 @@ public class SessionActivityMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<SessionActivityMiddleware> _logger;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public SessionActivityMiddleware(RequestDelegate next, ILogger<SessionActivityMiddleware> logger)
+    public SessionActivityMiddleware(
+        RequestDelegate next, 
+        ILogger<SessionActivityMiddleware> logger,
+        IServiceScopeFactory serviceScopeFactory)
     {
         _next = next;
         _logger = logger;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task InvokeAsync(HttpContext context, IUserSessionService sessionService)
+    public async Task InvokeAsync(HttpContext context)
     {
         // Continue processing the request
         await _next(context);
@@ -23,11 +28,13 @@ public class SessionActivityMiddleware
         {
             var sessionId = context.Session.Id;
             
-            // Update in background without blocking response
+            // Update in background without blocking response, using proper scope
             _ = Task.Run(async () =>
             {
                 try
                 {
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var sessionService = scope.ServiceProvider.GetRequiredService<IUserSessionService>();
                     await sessionService.UpdateLastActiveAsync(sessionId);
                 }
                 catch (Exception ex)
