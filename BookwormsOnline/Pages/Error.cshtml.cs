@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,10 +7,6 @@ namespace BookwormsOnline.Pages
     [IgnoreAntiforgeryToken]
     public class ErrorModel : PageModel
     {
-        public string? RequestId { get; set; }
-
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-
         public int? StatusCode { get; set; }
         public string ErrorMessage { get; set; }
 
@@ -24,7 +19,6 @@ namespace BookwormsOnline.Pages
 
         public void OnGet(int? statusCode = null)
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
             StatusCode = statusCode;
 
             if (statusCode == 404)
