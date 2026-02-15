@@ -67,7 +67,9 @@
                                 <i class="bi bi-key"></i> Verification Code
                             </label>
                             <input asp-for="Input.Code" class="form-control form-control-lg text-center" 
-                                   autocomplete="off" placeholder="000000" inputmode="numeric" />
+                                   autocomplete="off" placeholder="000000" inputmode="numeric" 
+                                   minlength="6" maxlength="6" pattern="^\d{6,}$" required 
+                                   title="Enter a 6 digit verification code." />
                             <span asp-validation-for="Input.Code" class="invalid-feedback d-block"></span>
                         </div>
 

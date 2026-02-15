@@ -20,14 +20,14 @@
                             <label asp-for="Input.FirstName" class="form-label">
                                 <i class="bi bi-person"></i> First Name
                             </label>
-                            <input asp-for="Input.FirstName" class="form-control form-control-lg" />
+                            <input asp-for="Input.FirstName" class="form-control form-control-lg" required pattern="^[a-zA-Z\s'-]+$" title="First Name can only contain letters, spaces, hyphens, and apostrophes." />
                             <span asp-validation-for="Input.FirstName" class="invalid-feedback d-block"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label asp-for="Input.LastName" class="form-label">
                                 <i class="bi bi-person"></i> Last Name
                             </label>
-                            <input asp-for="Input.LastName" class="form-control form-control-lg" />
+                            <input asp-for="Input.LastName" class="form-control form-control-lg" required pattern="^[a-zA-Z\s'-]+$" title="Last Name can only contain letters, spaces, hyphens, and apostrophes." />
                             <span asp-validation-for="Input.LastName" class="invalid-feedback d-block"></span>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                         <label asp-for="Input.Email" class="form-label">
                             <i class="bi bi-envelope"></i> Email Address
                         </label>
-                        <input asp-for="Input.Email" class="form-control form-control-lg" />
+                        <input asp-for="Input.Email" type="email" class="form-control form-control-lg" required />
                         <span asp-validation-for="Input.Email" class="invalid-feedback d-block"></span>
                     </div>
 
@@ -74,14 +74,14 @@
                             <label asp-for="Input.Mobile" class="form-label">
                                 <i class="bi bi-telephone"></i> Mobile
                             </label>
-                            <input asp-for="Input.Mobile" class="form-control form-control-lg" />
+                            <input asp-for="Input.Mobile" class="form-control form-control-lg" required pattern="^[89]\d{7}$" inputmode="numeric" maxlength="8" title="Invalid Mobile Number." />
                             <span asp-validation-for="Input.Mobile" class="invalid-feedback d-block"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label asp-for="Input.CreditCardNumber" class="form-label">
                                 <i class="bi bi-credit-card"></i> Credit Card Number
                             </label>
-                            <input asp-for="Input.CreditCardNumber" class="form-control form-control-lg" />
+                            <input asp-for="Input.CreditCardNumber" class="form-control form-control-lg" required pattern="^\d{16}$" inputmode="numeric" maxlength="16" title="Credit Card Number must be 16 digits." />
                             <span asp-validation-for="Input.CreditCardNumber" class="invalid-feedback d-block"></span>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                         <label asp-for="Input.BillingAddress" class="form-label">
                             <i class="bi bi-geo-alt"></i> Billing Address
                         </label>
-                        <textarea asp-for="Input.BillingAddress" class="form-control form-control-lg" rows="3"></textarea>
+                        <textarea asp-for="Input.BillingAddress" class="form-control form-control-lg" rows="3" required maxlength="500" data-val="true" data-val-regex="Address can only contain letters, numbers, spaces, hyphens, commas, periods, apostrophes, and parentheses." data-val-regex-pattern="^[a-zA-Z0-9\s\-,'().]+$"></textarea>
                         <span asp-validation-for="Input.BillingAddress" class="invalid-feedback d-block"></span>
                     </div>
 
@@ -98,7 +98,7 @@
                         <label asp-for="Input.ShippingAddress" class="form-label">
                             <i class="bi bi-truck"></i> Shipping Address
                         </label>
-                        <textarea asp-for="Input.ShippingAddress" class="form-control form-control-lg" rows="3"></textarea>
+                        <textarea asp-for="Input.ShippingAddress" class="form-control form-control-lg" rows="3" required maxlength="500"></textarea>
                         <span asp-validation-for="Input.ShippingAddress" class="invalid-feedback d-block"></span>
                     </div>
 
@@ -106,7 +106,7 @@
                         <label asp-for="Input.Photo" class="form-label">
                             <i class="bi bi-camera"></i> Profile Photo (optional)
                         </label>
-                        <input asp-for="Input.Photo" type="file" class="form-control" accept="image/jpeg" id="photoInput" onchange="validatePhotoFile()" />
+                        <input asp-for="Input.Photo" type="file" class="form-control" accept="image/jpeg" id="photoInput" onchange="validatePhotoFile()" required />
                         <small class="form-text text-muted">Maximum file size: 2MB. Only JPEG images (.jpg) are allowed.</small>
                         <div id="photoError" class="text-danger mt-2" style="display:none;"></div>
                         <span asp-validation-for="Input.Photo" class="invalid-feedback d-block"></span>

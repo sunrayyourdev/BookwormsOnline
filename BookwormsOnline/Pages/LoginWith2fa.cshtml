@@ -27,7 +27,8 @@
                         <input asp-for="Input.TwoFactorCode" class="form-control form-control-lg text-center" 
                                autocomplete="off" 
                                placeholder="000000" 
-                               inputmode="numeric" />
+                               inputmode="numeric" minlength="6" maxlength="6" pattern="^\d{6,}$" required 
+                               title="Enter a 6 digit verification code." />
                         <span asp-validation-for="Input.TwoFactorCode" class="invalid-feedback d-block"></span>
                     </div>
 
