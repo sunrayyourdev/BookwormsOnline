@@ -104,7 +104,7 @@ public class LoginModel : PageModel
             _logger.LogInformation("reCAPTCHA verification successful, proceeding with login");
 
             var user = await _userManager.FindByEmailAsync(Input.Email);
-            // ...existing code...
+            
             if (user != null)
             {
                 // Concurrent Session Control: Invalidate other sessions by updating the security stamp BEFORE sign-in
@@ -112,8 +112,6 @@ public class LoginModel : PageModel
                 await _userManager.UpdateSecurityStampAsync(user);
             }
 
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
             var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: false, lockoutOnFailure: true);
             
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
