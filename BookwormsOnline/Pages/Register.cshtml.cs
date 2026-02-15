@@ -83,9 +83,10 @@ namespace BookwormsOnline.Pages
             public string Email { get; set; } = string.Empty;
 
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 12)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
+            [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,100}$", 
+                ErrorMessage = "Password must be at least 12 characters long and include upper case, lower case, a number, and a special character.")]
             public string Password { get; set; } = string.Empty;
 
             [DataType(DataType.Password)]
