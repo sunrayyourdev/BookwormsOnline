@@ -86,7 +86,7 @@ namespace BookwormsOnline.Pages
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,100}$", 
-                ErrorMessage = "Password must be at least 12 characters long and include upper case, lower case, a number, and a special character.")]
+                ErrorMessage = "Password must be at least 12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., @, $, !, %, , ?, &).")]
             public string Password { get; set; } = string.Empty;
 
             [DataType(DataType.Password)]

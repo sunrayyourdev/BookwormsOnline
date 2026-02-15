@@ -13,7 +13,7 @@ function checkPasswordStrength() {
         upper: /[A-Z]/.test(password),
         lower: /[a-z]/.test(password),
         number: /[0-9]/.test(password),
-        special: /[^A-Za-z0-9]/.test(password)
+        special: /[@$!%*?&]/.test(password)
     };
 
     updateChecklist('check-length', checks.length);
