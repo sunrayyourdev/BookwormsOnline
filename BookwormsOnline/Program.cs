@@ -28,7 +28,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         options.Password.RequireUppercase = true;
         options.Password.RequireNonAlphanumeric = true;
         
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
         options.Lockout.MaxFailedAccessAttempts = 3;
         options.Lockout.AllowedForNewUsers = true;
     })
@@ -37,7 +37,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
     options.SlidingExpiration = true;
     options.LoginPath = "/Login";
     options.Cookie.HttpOnly = true;
@@ -47,7 +47,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.IdleTimeout = TimeSpan.FromMinutes(1);
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;

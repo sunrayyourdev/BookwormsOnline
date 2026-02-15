@@ -141,12 +141,12 @@ public class ChangePasswordModel : PageModel
             }
         }
 
-        // Enforce minimum password age (2 minutes)
+        // Enforce minimum password age (1 minute)
         var now = DateTime.UtcNow;
         var timeSinceLastChange = now - user.LastPasswordChangedDate;
-        if (timeSinceLastChange < TimeSpan.FromMinutes(2))
+        if (timeSinceLastChange < TimeSpan.FromMinutes(1))
         {
-            var remaining = TimeSpan.FromMinutes(2) - timeSinceLastChange;
+            var remaining = TimeSpan.FromMinutes(1) - timeSinceLastChange;
             var seconds = (int)remaining.TotalSeconds;
             var message = seconds >= 60 
                 ? $"{seconds / 60} minute(s) and {seconds % 60} second(s)" 
