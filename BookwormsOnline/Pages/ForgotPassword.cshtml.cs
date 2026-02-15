@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 
 namespace BookwormsOnline.Pages;
 
@@ -51,21 +50,13 @@ public class ForgotPasswordModel : PageModel
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             var codeEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             
-            // HTML encode the code parameter to signal to CodeQL that this is treated as
-            // an encoded transport string, not raw sensitive data
-            var safeCode = HtmlEncoder.Default.Encode(codeEncoded);
-            
-            // Send link to VerifyResetCode page instead of directly to ResetPassword
-            // This intermediate page will POST the code to ResetPassword, keeping the code
-            // out of server access logs (POST data is not logged, unlike URL parameters)
+            // Simple URL with email and token
             var callbackUrl = Url.Page(
-                "/VerifyResetCode",
+                "/ResetPassword",
                 pageHandler: null,
-                values: new { code = safeCode },
+                values: new { email = Input.Email, code = codeEncoded },
                 protocol: Request.Scheme);
 
-            // Pass the callback URL to the email service
-            // The service handles HTML body construction and encoding to prevent taint-path issues
             await _emailSender.SendResetLinkAsync(Input.Email, callbackUrl!);
 
             return RedirectToPage("./ForgotPasswordConfirmation");

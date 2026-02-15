@@ -53,37 +53,26 @@ public class ResetPasswordModel : PageModel
         public string Code { get; set; } = string.Empty;
     }
 
-    public IActionResult OnGet()
+    public IActionResult OnGet(string? code = null, string? email = null)
     {
-        // GET requests without a code are allowed - user will be shown the form
-        // The code should come via POST from VerifyResetCode page
+        if (code == null || email == null)
+        {
+            return BadRequest("A code and email must be supplied for password reset.");
+        }
+        
+        // Decode the code from the URL
+        var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        
+        Input = new InputModel
+        {
+            Code = decodedCode,
+            Email = email
+        };
+        
         return Page();
     }
 
-    // Handle POST from VerifyResetCode page with the reset code
-    public IActionResult OnPost(string? code = null)
-    {
-        if (!string.IsNullOrEmpty(code))
-        {
-            // Code received via POST from VerifyResetCode page
-            // Decode it and store in the form
-            var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            Input = new InputModel
-            {
-                Code = decodedCode,
-                Email = string.Empty // User must enter their email manually for privacy
-            };
-            
-            // Return the page with the code populated
-            // The user will then fill in email and password
-            return Page();
-        }
-        
-        // If no code in POST, treat this as the final password reset submission
-        return OnPostResetPasswordAsync().Result;
-    }
-
-    public async Task<IActionResult> OnPostResetPasswordAsync()
+    public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
         {

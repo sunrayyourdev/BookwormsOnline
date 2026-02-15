@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BookwormsOnline.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BookwormsOnline.Middleware
@@ -10,10 +11,12 @@ namespace BookwormsOnline.Middleware
     public class PasswordAgeMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly int _maxPasswordAgeMinutes;
 
-        public PasswordAgeMiddleware(RequestDelegate next)
+        public PasswordAgeMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            _maxPasswordAgeMinutes = configuration.GetValue<int>("SecuritySettings:PasswordSettings:MaximumAgeMinutes", 129600); // Default 90 days
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -39,7 +42,7 @@ namespace BookwormsOnline.Middleware
                     if (user != null)
                     {
                         var age = DateTime.UtcNow - user.LastPasswordChangedDate;
-                        if (age > TimeSpan.FromMinutes(10))
+                        if (age > TimeSpan.FromMinutes(_maxPasswordAgeMinutes))
                         {
                             context.Response.Redirect("/ChangePassword?expired=1");
                             return; // Short-circuit pipeline

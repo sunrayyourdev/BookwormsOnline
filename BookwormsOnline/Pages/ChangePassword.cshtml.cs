@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.ComponentModel.DataAnnotations;
 
 namespace BookwormsOnline.Pages;
@@ -18,17 +19,20 @@ public class ChangePasswordModel : PageModel
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ApplicationDbContext _context;
     private readonly IAuditLogService _auditLogService;
+    private readonly IConfiguration _configuration;
 
     public ChangePasswordModel(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         ApplicationDbContext context,
-        IAuditLogService auditLogService)
+        IAuditLogService auditLogService,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _context = context;
         _auditLogService = auditLogService;
+        _configuration = configuration;
     }
 
     [BindProperty]
@@ -141,12 +145,13 @@ public class ChangePasswordModel : PageModel
             }
         }
 
-        // Enforce minimum password age (1 minute)
+        // Enforce minimum password age from configuration
+        var minPasswordAgeMinutes = _configuration.GetValue<int>("SecuritySettings:PasswordSettings:MinimumAgeMinutes", 2);
         var now = DateTime.UtcNow;
         var timeSinceLastChange = now - user.LastPasswordChangedDate;
-        if (timeSinceLastChange < TimeSpan.FromMinutes(1))
+        if (timeSinceLastChange < TimeSpan.FromMinutes(minPasswordAgeMinutes))
         {
-            var remaining = TimeSpan.FromMinutes(1) - timeSinceLastChange;
+            var remaining = TimeSpan.FromMinutes(minPasswordAgeMinutes) - timeSinceLastChange;
             var seconds = (int)remaining.TotalSeconds;
             var message = seconds >= 60 
                 ? $"{seconds / 60} minute(s) and {seconds % 60} second(s)" 

@@ -19,6 +19,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Read security settings from configuration
+var lockoutDurationMinutes = builder.Configuration.GetValue<int>("SecuritySettings:LockoutDurationMinutes", 15);
+var maxFailedAccessAttempts = builder.Configuration.GetValue<int>("SecuritySettings:MaxFailedAccessAttempts", 3);
+var sessionTimeoutMinutes = builder.Configuration.GetValue<int>("SecuritySettings:SessionTimeoutMinutes", 10);
+var securityStampValidationIntervalMs = builder.Configuration.GetValue<int>("SecuritySettings:SecurityStampValidationIntervalMilliseconds", 1800000); // Default 30 minutes
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
@@ -28,8 +34,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         options.Password.RequireUppercase = true;
         options.Password.RequireNonAlphanumeric = true;
         
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
-        options.Lockout.MaxFailedAccessAttempts = 3;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(lockoutDurationMinutes);
+        options.Lockout.MaxFailedAccessAttempts = maxFailedAccessAttempts;
         options.Lockout.AllowedForNewUsers = true;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -37,7 +43,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionTimeoutMinutes);
     options.SlidingExpiration = true;
     options.LoginPath = "/Login";
     options.Cookie.HttpOnly = true;
@@ -47,7 +53,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(1);
+    options.IdleTimeout = TimeSpan.FromMinutes(sessionTimeoutMinutes);
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -56,7 +62,7 @@ builder.Services.AddSession(options =>
 // Configure SecurityStamp validation interval for Concurrent Session Control
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    options.ValidationInterval = TimeSpan.FromMilliseconds(1);
+    options.ValidationInterval = TimeSpan.FromMilliseconds(securityStampValidationIntervalMs);
 });
 
 builder.Services.AddDataProtection();
